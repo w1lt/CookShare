@@ -1,23 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import "./App.css";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { WelcomePage } from "./components/welcomePage";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Recipes } from "./components/recipes";
+import { RecipeForm } from "./components/recipeForm";
+import { Header } from "./components/header";
+import { UserSettings } from "./pages/userSettings";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  onAuthStateChanged(getAuth(), (user) => {
+    if (user) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  });
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        {isLoggedIn ? <Header /> : null}
+        <Routes>
+          <Route path="/login" element={<WelcomePage />} />
+          <Route path="/recipes" element={<Recipes />} />
+          <Route path="/new-recipe" element={<RecipeForm />} />
+          <Route path="/settings" element={<UserSettings />} />
+        </Routes>
+      </Router>
     </div>
   );
 }
