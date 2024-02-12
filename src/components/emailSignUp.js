@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { auth } from "../config/firebase";
+import { auth, db } from "../config/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
+import { checkValidUsername } from "./username";
 
 export const EmailSignUp = () => {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSignup, setIsSignup] = useState(true);
 
@@ -14,11 +18,22 @@ export const EmailSignUp = () => {
     e.preventDefault();
     try {
       if (isSignup) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const validUsername = await checkValidUsername(username);
+        if (validUsername) {
+          await createUserWithEmailAndPassword(auth, email, password).then(
+            async (userCredential) => {
+              await setDoc(doc(db, "users", userCredential.user.uid), {
+                username: username,
+              });
+              updateProfile(userCredential.user, {
+                displayName: username,
+              });
+            }
+          );
+        }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      console.log("User created successfully!");
     } catch (error) {
       console.error("Error creating user:", error);
     }
@@ -28,12 +43,24 @@ export const EmailSignUp = () => {
     <div>
       <form onSubmit={signIn}>
         <p>Please {isSignup ? "Create an Account" : "Log In"} to continue.</p>
-        <input
-          type="Email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        {isSignup && (
+          <div>
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+        )}
+        <div>
+          <input
+            type="Email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
         <div>
           <input
             type="password"

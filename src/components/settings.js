@@ -1,10 +1,15 @@
 import { auth } from "../config/firebase";
 import { updateProfile } from "firebase/auth";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { LogoutButton } from "./logoutButton";
+import { UserContext } from "../App";
+import { checkValidUsername } from "./username";
+import { setDoc, doc } from "firebase/firestore";
+import { db } from "../config/firebase";
 
 export const Settings = () => {
-  const [displayName, setDisplayName] = useState("");
+  const currentUser = useContext(UserContext);
+  const [displayName, setDisplayName] = useState(currentUser.displayName);
 
   const deleteUser = async () => {
     try {
@@ -18,31 +23,22 @@ export const Settings = () => {
   const addDisplayName = async (e) => {
     e.preventDefault();
     try {
-      await updateProfile(auth.currentUser, {
-        displayName: displayName,
-      });
+      if (await checkValidUsername(displayName)) {
+        await updateProfile(auth.currentUser, {
+          displayName: displayName,
+        });
+        await setDoc(doc(db, "users", currentUser.uid), {
+          username: displayName,
+        });
+      }
       setDisplayName("");
     } catch (error) {}
   };
 
-  const generateDisplayName = () => {
-    const email = auth.currentUser.email;
-    const displayName = email.substring(0, email.indexOf("@"));
-    return displayName;
-  };
-
-  if (auth.currentUser.displayName === null) {
-    const displayName = generateDisplayName();
-    updateProfile(auth.currentUser, {
-      displayName: displayName,
-    });
-  }
-
   return (
     <div>
       <h3>
-        Logged in as {auth.currentUser.displayName || generateDisplayName()} (
-        {auth.currentUser.email})
+        Logged in as {currentUser.displayName} ({currentUser.email})
         <div>
           <LogoutButton />
           <button onClick={deleteUser} type="submit">
@@ -68,7 +64,7 @@ export const Settings = () => {
             }
             onClick={addDisplayName}
           >
-            {displayName == null ? "Create" : "Update"} display name
+            Update Username
           </button>
         </div>
       </form>

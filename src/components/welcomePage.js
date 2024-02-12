@@ -18,6 +18,7 @@ export const WelcomePage = () => {
     <div>
       {!isLoggedIn ? (
         <div>
+          <h1>Welcome to the Recipe App!</h1>
           <EmailSignUp />
           <GoogleSignIn />
         </div>

@@ -1,41 +1,36 @@
-import { useState } from "react";
+import { useState, createContext } from "react";
 import "./App.css";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { WelcomePage } from "./components/welcomePage";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Recipes } from "./components/recipes";
 import { RecipeForm } from "./components/recipeForm";
 import { Header } from "./components/header";
 import { UserSettings } from "./pages/userSettings";
+import { auth } from "./config/firebase";
+
+export const UserContext = createContext();
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [currentUser, setCurrentUser] = useState([]);
 
-  onAuthStateChanged(getAuth(), (user) => {
-    if (user) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
+  auth.onAuthStateChanged((user) => {
+    setCurrentUser(user);
   });
 
   return (
     <div className="App">
-      <Router>
-        {isLoggedIn ? <Header /> : <Navigate to={"/login"} />}
-        <Routes>
-          <Route path="/login" element={<WelcomePage />} />
-          <Route path="/recipes" element={<Recipes />} />
-          <Route path="/new-recipe" element={<RecipeForm />} />
-          <Route path="/settings" element={<UserSettings />} />
-          <Route path="/" element={<WelcomePage />} />
-        </Routes>
-      </Router>
+      <UserContext.Provider value={currentUser}>
+        <Router>
+          {currentUser ? <Header /> : null}
+          <Routes>
+            <Route path="/login" element={<WelcomePage />} />
+            <Route path="/recipes" element={<Recipes />} />
+            <Route path="/new-recipe" element={<RecipeForm />} />
+            <Route path="/settings" element={<UserSettings />} />
+            <Route path="/" element={<WelcomePage />} />
+          </Routes>
+        </Router>
+      </UserContext.Provider>
     </div>
   );
 }
