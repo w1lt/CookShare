@@ -2,7 +2,12 @@ import { useState } from "react";
 import "./App.css";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { WelcomePage } from "./components/welcomePage";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { Recipes } from "./components/recipes";
 import { RecipeForm } from "./components/recipeForm";
 import { Header } from "./components/header";
@@ -22,7 +27,7 @@ function App() {
   return (
     <div className="App">
       <Router>
-        {isLoggedIn ? <Header /> : null}
+        {isLoggedIn ? <Header /> : <Navigate to={"/login"} />}
         <Routes>
           <Route path="/login" element={<WelcomePage />} />
           <Route path="/recipes" element={<Recipes />} />

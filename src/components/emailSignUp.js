@@ -5,52 +5,40 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 
-export const EmailSignUp = ({ isSignUp }) => {
+export const EmailSignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSignup, setIsSignup] = useState(true);
 
   const signIn = async (e) => {
     e.preventDefault();
     try {
-      if (isSignUp) {
+      if (isSignup) {
         await createUserWithEmailAndPassword(auth, email, password);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
       console.log("User created successfully!");
     } catch (error) {
-      if (error.message === "Firebase: Error (auth/email-already-in-use).") {
-        alert("Email already in use. Please sign in.");
-      }
-      if (error.message === "Firebase: Error (auth/invalid-email).") {
-        alert("Invalid email");
-      }
-      if (error.message === "Firebase: Error (auth/weak-password).") {
-        alert("Password must be at least 6 characters long");
-      }
-      if (error.message === "Firebase: Error (auth/user-not-found).") {
-        alert("User not found, try logging in?");
-      } else {
-        alert("Could not log in", error.message);
-      }
+      console.error("Error creating user:", error);
     }
-    setEmail("");
-    setPassword("");
   };
 
   return (
     <div>
       <form onSubmit={signIn}>
-        <p>Please {isSignUp ? "Create an Account" : "Log In"} to continue.</p>
+        <p>Please {isSignup ? "Create an Account" : "Log In"} to continue.</p>
         <input
           type="Email"
           placeholder="Email"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <div>
           <input
             type="password"
             placeholder="Password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
@@ -60,10 +48,21 @@ export const EmailSignUp = ({ isSignUp }) => {
             type="submit"
             disabled={!email.includes("@") || !email.includes(".") || !password}
           >
-            {isSignUp ? "Create Account" : "Log In"}
+            {isSignup ? "Create Account" : "Log In"}
           </button>
         </div>
       </form>
+      <span
+        onClick={() => setIsSignup(!isSignup)}
+        style={{
+          cursor: "pointer",
+          textDecoration: "underline",
+          color: "blue",
+        }}
+      >
+        {isSignup ? "Log In" : "Create Account"}
+      </span>{" "}
+      instead
     </div>
   );
 };
