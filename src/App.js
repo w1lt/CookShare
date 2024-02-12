@@ -28,6 +28,7 @@ function App() {
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/new-recipe" element={<RecipeForm />} />
           <Route path="/settings" element={<UserSettings />} />
+          <Route path="/" element={<WelcomePage />} />
         </Routes>
       </Router>
     </div>
