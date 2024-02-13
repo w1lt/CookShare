@@ -6,10 +6,24 @@ export const Header = () => {
   return (
     <div>
       <h1>Recipe App! 👨‍🍳</h1>
-      <Link to="/recipes">Recipes</Link> |{" "}
-      <Link to="/new-recipe">Add Recipe</Link> |{" "}
-      <Link to={`/profile/${currentUser.displayName}`}>Profile</Link> |{" "}
-      <Link to="/settings">Settings</Link>
+      <Link style={{ textDecoration: "none", color: "black" }} to="/recipes">
+        Recipes
+      </Link>{" "}
+      |{" "}
+      <Link style={{ textDecoration: "none", color: "black" }} to="/new-recipe">
+        Add Recipe
+      </Link>{" "}
+      |{" "}
+      <Link
+        style={{ textDecoration: "none", color: "black" }}
+        to={`/profile/${currentUser.displayName}`}
+      >
+        Profile
+      </Link>{" "}
+      |{" "}
+      <Link style={{ textDecoration: "none", color: "black" }} to="/settings">
+        Settings
+      </Link>
     </div>
   );
 };

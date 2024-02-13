@@ -36,6 +36,7 @@ export const ProfilePage = () => {
       if (!snapshot.empty) {
         const userData = snapshot.docs[0].data();
         setUserInfo(userData);
+        console.log("Updated user info:");
         setUserId(snapshot.docs[0].id);
         localStorage.setItem(`userInfo_${username}`, JSON.stringify(userData));
       } else {
@@ -60,6 +61,7 @@ export const ProfilePage = () => {
           id: doc.id,
         }));
         setUserRecipes(updatedRecipeList);
+        console.log("Updated recipe list:");
         localStorage.setItem(
           `userRecipes_${username}`,
           JSON.stringify(updatedRecipeList)

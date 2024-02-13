@@ -13,7 +13,6 @@ export const checkValidUsername = async (username) => {
       alert("Username already in use. Please choose another.");
       return false;
     } else {
-      console.log("Username is available");
       return true;
     }
   } catch (error) {

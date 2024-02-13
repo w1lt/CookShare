@@ -4,10 +4,16 @@ import { deleteDoc, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { BASE_DOMAIN } from "../static/vars";
 
 export const Recipe = (recipe) => {
   const currentUser = useContext(UserContext);
   const [authorUsername, setAuthorUsername] = useState("");
+
+  const copyRecipeLink = () => {
+    const recipeLink = `${BASE_DOMAIN}/recipe/${recipe.id}`;
+    navigator.clipboard.writeText(recipeLink);
+  };
 
   const getUsernameFromUid = (uid) => {
     getDoc(doc(db, "users", uid)).then((docSnap) => {
@@ -75,13 +81,14 @@ export const Recipe = (recipe) => {
           {recipe.usersLiked.length === 1 ? " Like" : " Likes"}
           {recipe.usersLiked.includes(currentUser.uid) ? " ❤️" : " "}
         </button>
+        <button onClick={copyRecipeLink}>Share</button>
         {currentUser.uid === recipe.authorUid && (
           <button onClick={() => handleDeleteRecipe(recipe.id)}>Delete</button>
         )}
         <div>{recipe.dateAuthored.split(",")[0]}</div>
         <p>
-          {recipe.ingredients.split(",").map((e) => (
-            <li key={e}>{e}</li>
+          {recipe.ingredients.split(",").map((e, index) => (
+            <li key={index}>{e}</li>
           ))}
         </p>
         <p>{recipe.instructions}</p>

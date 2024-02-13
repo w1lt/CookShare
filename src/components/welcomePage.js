@@ -16,7 +16,7 @@ export const WelcomePage = () => {
           <GoogleSignIn />
         </div>
       ) : (
-        <Navigate to="/" />
+        <Navigate to="/recipes" />
       )}
     </div>
   );

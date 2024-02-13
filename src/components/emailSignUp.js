@@ -53,7 +53,6 @@ export const EmailSignUp = () => {
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
           LoginEmail = doc.data().email;
-          console.log(LoginEmail);
         });
 
         await signInWithEmailAndPassword(auth, LoginEmail, password);

@@ -14,6 +14,7 @@ import { UserSettings } from "./pages/userSettings";
 import { auth } from "./config/firebase";
 import { NotFound } from "./pages/404";
 import { ProfilePage } from "./pages/profile";
+import { Recipe } from "./components/recipe";
 
 export const UserContext = createContext();
 
@@ -32,12 +33,16 @@ function App() {
           <Routes>
             <Route path="/login" element={<WelcomePage />} />
             <Route path="/recipes" element={<Recipes />} />
+            <Route path="/recipe/:id" element={<Recipe />} />
             <Route path="/new-recipe" element={<RecipeForm />} />
             <Route path="/settings" element={<UserSettings />} />
             <Route path="/Error404" element={<NotFound />} />
-            <Route path={"profile"}>
+            <Route path="profile">
               <Route path=":username" element={<ProfilePage />}>
-                <Route path="recipes" element={<RecipeForm />} />
+                <Route
+                  path="followers"
+                  element={<ProfilePage showFollowers={true} />}
+                />
               </Route>
             </Route>
             <Route path="/" element={<WelcomePage />} />

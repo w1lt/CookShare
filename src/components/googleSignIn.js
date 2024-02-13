@@ -5,7 +5,6 @@ export const GoogleSignIn = () => {
   const signInWithGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvidor);
-      console.log("User created successfully!");
     } catch (error) {
       console.error("Error creating user:", error);
     }
