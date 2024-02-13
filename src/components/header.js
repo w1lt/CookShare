@@ -8,8 +8,8 @@ export const Header = () => {
       <h1>Recipe App! 👨‍🍳</h1>
       <Link to="/recipes">Recipes</Link> |{" "}
       <Link to="/new-recipe">Add Recipe</Link> |{" "}
-      <Link to="/settings">Settings</Link> |{" "}
-      <Link to={`/profile/${currentUser.displayName}`}>Profile</Link>
+      <Link to={`/profile/${currentUser.displayName}`}>Profile</Link> |{" "}
+      <Link to="/settings">Settings</Link>
     </div>
   );
 };

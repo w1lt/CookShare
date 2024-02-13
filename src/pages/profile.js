@@ -21,34 +21,56 @@ export const ProfilePage = () => {
   let { username } = useParams();
 
   useEffect(() => {
+    const cachedUserInfo = localStorage.getItem(`userInfo_${username}`);
+    const cachedRecipeList = localStorage.getItem(`userRecipes_${username}`);
+
+    if (cachedUserInfo) {
+      setUserInfo(JSON.parse(cachedUserInfo));
+    }
+    if (cachedRecipeList) {
+      setUserRecipes(JSON.parse(cachedRecipeList));
+    }
+
     const q = query(collection(db, "users"), where("username", "==", username));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribeUserData = onSnapshot(q, (snapshot) => {
       if (!snapshot.empty) {
         const userData = snapshot.docs[0].data();
         setUserInfo(userData);
         setUserId(snapshot.docs[0].id);
-        console.log("User data:", userData);
+        localStorage.setItem(`userInfo_${username}`, JSON.stringify(userData));
       } else {
         console.error("No user found with username:", username);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeUserData();
+    };
   }, [username]);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "recipes"),
-      where("authorUid", "==", userId)
-    );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setUserRecipes(
-        snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+    if (userId) {
+      const q2 = query(
+        collection(db, "recipes"),
+        where("authorUid", "==", userId)
       );
-    });
+      const unsubscribeRecipeList = onSnapshot(q2, (snapshot) => {
+        const updatedRecipeList = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        setUserRecipes(updatedRecipeList);
+        localStorage.setItem(
+          `userRecipes_${username}`,
+          JSON.stringify(updatedRecipeList)
+        );
+      });
 
-    return () => unsubscribe();
-  }, [userId]);
+      return () => {
+        unsubscribeRecipeList();
+      };
+    }
+  }, [userId, username]);
 
   const followUser = async () => {
     const q = query(

@@ -4,6 +4,7 @@ import { query, collection, getDocs, where } from "firebase/firestore";
 import { db } from "../config/firebase";
 
 export const checkValidUsername = async (username) => {
+  username = username.toLowerCase();
   try {
     const q = query(collection(db, "users"), where("username", "==", username));
     const querySnapshot = await getDocs(q);
