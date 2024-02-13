@@ -34,7 +34,7 @@ export const RecipeForm = () => {
     <form onSubmit={onSubmitRecipe}>
       <div>
         <h1>Add Recipe</h1>
-        <label>Recipe name: </label>
+        <label>Recipe name </label>
         <input
           type="text"
           placeholder="Recipe Name"
@@ -42,7 +42,7 @@ export const RecipeForm = () => {
           onChange={(e) => setRecipeName(e.target.value)}
         />
       </div>
-      <label>Ingredients: </label>
+      <label>Ingredients </label>
       <input
         type="text"
         placeholder="eg. cheese, tomato, ..."
@@ -50,7 +50,7 @@ export const RecipeForm = () => {
         onChange={(e) => setIngredients(e.target.value)}
       />
       <div>
-        <label>instructions: </label>
+        <label>Instructions </label>
         <input
           type="text"
           placeholder="add sauce..."

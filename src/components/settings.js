@@ -17,9 +17,11 @@ export const Settings = () => {
     try {
       const uid = currentUser.uid;
       const user = currentUser.displayName;
-      await auth.currentUser.delete();
-      await deleteDoc(doc(db, "users", uid));
-      alert(user + "account deleted successfully!");
+      if (window.confirm("Are you sure you want to delete your account?")) {
+        await auth.currentUser.delete();
+        await deleteDoc(doc(db, "users", uid));
+        alert(user + "account deleted successfully!");
+      }
     } catch (error) {
       alert("Error deleting account: please log out and log back in");
       console.error("Error deleting user:", error);
@@ -93,7 +95,7 @@ export const Settings = () => {
           }
           onClick={addDisplayName}
         >
-          Update Username
+          Update
         </button>
       </form>
     </div>

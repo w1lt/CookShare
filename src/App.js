@@ -35,8 +35,10 @@ function App() {
             <Route path="/new-recipe" element={<RecipeForm />} />
             <Route path="/settings" element={<UserSettings />} />
             <Route path="/Error404" element={<NotFound />} />
-            <Route path={"user"}>
-              <Route path=":userId" element={<ProfilePage />} />
+            <Route path={"profile"}>
+              <Route path=":username" element={<ProfilePage />}>
+                <Route path="recipes" element={<RecipeForm />} />
+              </Route>
             </Route>
             <Route path="/" element={<WelcomePage />} />
             <Route path="/*" element={<Navigate to={"/Error404"} />} />

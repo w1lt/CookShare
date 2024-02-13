@@ -31,7 +31,9 @@ export const EmailSignUp = () => {
             await setDoc(doc(db, "users", userCredential.user.uid), {
               username: username,
               email: email,
-              dateCreated: new Date().toLocaleString(),
+              userId: userCredential.user.uid,
+              followers: [],
+              following: [],
             });
             updateProfile(userCredential.user, {
               displayName: username,
@@ -91,7 +93,16 @@ export const EmailSignUp = () => {
           />
         </div>
         <div>
-          <button onClick={signIn} type="submit" disabled={!password}>
+          <button
+            onClick={signIn}
+            type="submit"
+            disabled={
+              !password ||
+              !username ||
+              password.length < 6 ||
+              username.length < 3
+            }
+          >
             {isSignup ? "Create Account" : "Log In"}
           </button>
         </div>

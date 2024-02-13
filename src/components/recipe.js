@@ -1,5 +1,5 @@
 import { UserContext } from "../App";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { deleteDoc, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useState } from "react";
@@ -12,12 +12,25 @@ export const Recipe = (recipe) => {
   const getUsernameFromUid = (uid) => {
     getDoc(doc(db, "users", uid)).then((docSnap) => {
       if (docSnap.exists()) {
-        setAuthorUsername(docSnap.data().username);
+        const username = docSnap.data().username;
+        setAuthorUsername(username);
+        // Store the username in localStorage
+        localStorage.setItem(`authorUsername_${uid}`, username);
       }
     });
   };
 
-  getUsernameFromUid(recipe.authorUid);
+  useEffect(() => {
+    // Check if the username is already cached in localStorage
+    const cachedUsername = localStorage.getItem(
+      `authorUsername_${recipe.authorUid}`
+    );
+    if (cachedUsername) {
+      setAuthorUsername(cachedUsername);
+    } else {
+      getUsernameFromUid(recipe.authorUid);
+    }
+  }, [recipe.authorUid]);
 
   const handleLikeRecipe = async () => {
     try {
@@ -50,8 +63,11 @@ export const Recipe = (recipe) => {
     <>
       <div>
         <i>
-          {<Link to={`/user/${recipe.author}`}>{recipe.author}</Link> ||
-            authorUsername}
+          {authorUsername ? (
+            <Link to={`/profile/${authorUsername}`}>{authorUsername}</Link>
+          ) : (
+            "username"
+          )}
         </i>
         : <b>{recipe.name + " "}</b>
         <button onClick={() => handleLikeRecipe(recipe.id)}>
@@ -62,7 +78,7 @@ export const Recipe = (recipe) => {
         {currentUser.uid === recipe.authorUid && (
           <button onClick={() => handleDeleteRecipe(recipe.id)}>Delete</button>
         )}
-        <div>added: {recipe.dateAuthored}</div>
+        <div>{recipe.dateAuthored.split(",")[0]}</div>
         <p>
           {recipe.ingredients.split(",").map((e) => (
             <li key={e}>{e}</li>
