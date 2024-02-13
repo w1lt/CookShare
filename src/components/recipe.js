@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { deleteDoc, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export const Recipe = (recipe) => {
   const currentUser = useContext(UserContext);
@@ -11,9 +12,7 @@ export const Recipe = (recipe) => {
   const getUsernameFromUid = (uid) => {
     getDoc(doc(db, "users", uid)).then((docSnap) => {
       if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data().username);
         setAuthorUsername(docSnap.data().username);
-      } else {
       }
     });
   };
@@ -50,10 +49,15 @@ export const Recipe = (recipe) => {
   return (
     <>
       <div>
-        <i>{authorUsername}</i>: <b>{recipe.name + " "}</b>
+        <i>
+          {<Link to={`/user/${recipe.author}`}>{recipe.author}</Link> ||
+            authorUsername}
+        </i>
+        : <b>{recipe.name + " "}</b>
         <button onClick={() => handleLikeRecipe(recipe.id)}>
-          {recipe.usersLiked.length || 0} Likes
-          {recipe.usersLiked.includes(currentUser.uid) ? " ❤️" : ""}
+          {recipe.usersLiked.length || 0}
+          {recipe.usersLiked.length === 1 ? " Like" : " Likes"}
+          {recipe.usersLiked.includes(currentUser.uid) ? " ❤️" : " "}
         </button>
         {currentUser.uid === recipe.authorUid && (
           <button onClick={() => handleDeleteRecipe(recipe.id)}>Delete</button>
@@ -61,7 +65,7 @@ export const Recipe = (recipe) => {
         <div>added: {recipe.dateAuthored}</div>
         <p>
           {recipe.ingredients.split(",").map((e) => (
-            <li key={recipe.authorUid}>{e}</li>
+            <li key={e}>{e}</li>
           ))}
         </p>
         <p>{recipe.instructions}</p>

@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { auth, db } from "../config/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  where,
+  query,
+  collection,
+  getDocs,
+} from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -16,26 +23,39 @@ export const EmailSignUp = () => {
 
   const signIn = async (e) => {
     e.preventDefault();
-    try {
-      if (isSignup) {
-        const validUsername = await checkValidUsername(username);
-        if (validUsername) {
-          await createUserWithEmailAndPassword(auth, email, password).then(
-            async (userCredential) => {
-              await setDoc(doc(db, "users", userCredential.user.uid), {
-                username: username,
-              });
-              updateProfile(userCredential.user, {
-                displayName: username,
-              });
-            }
-          );
-        }
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
+    if (isSignup) {
+      const validUsername = await checkValidUsername(username);
+      if (validUsername) {
+        await createUserWithEmailAndPassword(auth, email, password).then(
+          async (userCredential) => {
+            await setDoc(doc(db, "users", userCredential.user.uid), {
+              username: username,
+              email: email,
+              dateCreated: new Date().toLocaleString(),
+            });
+            updateProfile(userCredential.user, {
+              displayName: username,
+            });
+          }
+        );
       }
-    } catch (error) {
-      console.error("Error creating user:", error);
+    } else {
+      if (username.includes("@")) {
+        await signInWithEmailAndPassword(auth, username, password);
+      } else {
+        let LoginEmail;
+        const q = query(
+          collection(db, "users"),
+          where("username", "==", username)
+        );
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          LoginEmail = doc.data().email;
+          console.log(LoginEmail);
+        });
+
+        await signInWithEmailAndPassword(auth, LoginEmail, password);
+      }
     }
   };
 
@@ -43,24 +63,25 @@ export const EmailSignUp = () => {
     <div>
       <form onSubmit={signIn}>
         <p>Please {isSignup ? "Create an Account" : "Log In"} to continue.</p>
+        <div>
+          <input
+            type="text"
+            placeholder={isSignup ? "Username" : "Username or Email"}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </div>
+
         {isSignup && (
           <div>
             <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="Email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
         )}
-        <div>
-          <input
-            type="Email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
         <div>
           <input
             type="password"
@@ -70,11 +91,7 @@ export const EmailSignUp = () => {
           />
         </div>
         <div>
-          <button
-            onClick={signIn}
-            type="submit"
-            disabled={!email.includes("@") || !email.includes(".") || !password}
-          >
+          <button onClick={signIn} type="submit" disabled={!password}>
             {isSignup ? "Create Account" : "Log In"}
           </button>
         </div>

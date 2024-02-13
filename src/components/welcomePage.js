@@ -1,22 +1,15 @@
 import { EmailSignUp } from "./emailSignUp";
 import { GoogleSignIn } from "./googleSignIn";
-import { useState } from "react";
-import { onAuthStateChanged, getAuth } from "firebase/auth";
 import { Navigate } from "react-router-dom";
+import { UserContext } from "../App";
+import { useContext } from "react";
 
 export const WelcomePage = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const currentUser = useContext(UserContext);
 
-  onAuthStateChanged(getAuth(), (user) => {
-    if (user) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
-  });
   return (
     <div>
-      {!isLoggedIn ? (
+      {!currentUser ? (
         <div>
           <h1>Welcome to the Recipe App!</h1>
           <EmailSignUp />

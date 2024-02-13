@@ -24,6 +24,7 @@ export const RecipeForm = () => {
       //clear input field and refresh their state
       setRecipeName("");
       setIngredients("");
+      setInstructions("");
     } catch (error) {
       console.error("Error adding recipe:", error);
     }
