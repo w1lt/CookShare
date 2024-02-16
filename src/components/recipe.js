@@ -5,13 +5,22 @@ import { db } from "../config/firebase";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BASE_DOMAIN } from "../static/vars";
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Typography,
+} from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 export const Recipe = (recipe) => {
   const currentUser = useContext(UserContext);
   const [authorUsername, setAuthorUsername] = useState("");
 
   const copyRecipeLink = () => {
-    const recipeLink = `${BASE_DOMAIN}/recipe/${recipe.id}`;
+    const recipeLink = `${BASE_DOMAIN}/recipes/${recipe.id}`;
     navigator.clipboard.writeText(recipeLink);
   };
 
@@ -27,7 +36,6 @@ export const Recipe = (recipe) => {
   };
 
   useEffect(() => {
-    // Check if the username is already cached in localStorage
     const cachedUsername = localStorage.getItem(
       `authorUsername_${recipe.authorUid}`
     );
@@ -67,32 +75,57 @@ export const Recipe = (recipe) => {
   };
   return (
     <>
-      <div>
-        <i>
-          {authorUsername ? (
-            <Link to={`/profile/${authorUsername}`}>{authorUsername}</Link>
-          ) : (
-            "username"
-          )}
-        </i>
-        : <b>{recipe.name + " "}</b>
-        <button onClick={() => handleLikeRecipe(recipe.id)}>
-          {recipe.usersLiked.length || 0}
-          {recipe.usersLiked.length === 1 ? " Like" : " Likes"}
-          {recipe.usersLiked.includes(currentUser.uid) ? " ❤️" : " "}
-        </button>
-        <button onClick={copyRecipeLink}>Share</button>
-        {currentUser.uid === recipe.authorUid && (
-          <button onClick={() => handleDeleteRecipe(recipe.id)}>Delete</button>
-        )}
-        <div>{recipe.dateAuthored.split(",")[0]}</div>
-        <p>
-          {recipe.ingredients.split(",").map((e, index) => (
-            <li key={index}>{e}</li>
-          ))}
-        </p>
-        <p>{recipe.instructions}</p>
-      </div>
+      <Card
+        sx={{
+          width: 250,
+          margin: "auto",
+        }}
+      >
+        <Link
+          to={`/recipes/${recipe.id}`}
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <CardMedia
+            component="img"
+            height="140"
+            image="https://mui.com/static/images/cards/paella.jpg"
+            title="green iguana"
+          />
+        </Link>
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="div">
+            {recipe.name}{" "}
+          </Typography>
+          <Typography
+            variant="body2"
+            color={recipe.cookTime > 30 ? "error" : "text.primary"}
+          >
+            Takes{" "}
+            {`${Math.floor(recipe.cookTime / 60)}h ${recipe.cookTime % 60}m`}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            textOverflow={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {recipe.description}
+          </Typography>
+        </CardContent>
+        <CardActions display="flex" justifyContent="space-between">
+          <FavoriteIcon
+            onClick={() => handleLikeRecipe()}
+            color={
+              recipe.usersLiked.includes(currentUser.uid) ? "primary" : "action"
+            }
+          />
+          {recipe.usersLiked.length}
+          <Button size="small"></Button>
+        </CardActions>
+      </Card>
     </>
   );
 };

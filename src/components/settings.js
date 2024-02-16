@@ -1,18 +1,27 @@
 import { auth } from "../config/firebase";
 import { updateProfile } from "firebase/auth";
-import { useState, useContext } from "react";
-import { LogoutButton } from "./logoutButton";
+import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../App";
 import { checkValidUsername } from "./username";
 import { setDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { sendEmailVerification } from "firebase/auth";
+import { Box, Button, Container, TextField } from "@mui/material";
+import { signOut } from "firebase/auth";
 
 export const Settings = () => {
   const currentUser = useContext(UserContext);
   const [displayName, setDisplayName] = useState("");
-  const [signUpDate, setSignUpDate] = useState("");
 
+  const signOutUser = async () => {
+    try {
+      if (window.confirm("Are you sure you want to log out?")) {
+        await signOut(auth);
+      }
+    } catch (error) {
+      console.error("Error signing out user:", error);
+    }
+  };
   const deleteUser = async () => {
     try {
       const uid = currentUser.uid;
@@ -39,20 +48,11 @@ export const Settings = () => {
         });
       }
       setDisplayName("");
-    } catch (error) {}
-  };
-
-  const getsetSignUpDate = async () => {
-    try {
-      let date = await currentUser.metadata.creationTime;
-      date = date.split(" ");
-      date = date[2] + " " + date[1] + ", " + date[3];
-      setSignUpDate(date);
+      alert("Display name updated successfully!");
     } catch (error) {
-      console.error("Error getting signup date:", error);
+      alert("Error updating display name:", error.message);
     }
   };
-  getsetSignUpDate();
 
   const verifyEmail = async () => {
     try {
@@ -64,40 +64,50 @@ export const Settings = () => {
   };
 
   return (
-    <div>
-      <h3>
-        Logged in as {currentUser.displayName} ({currentUser.email})
-      </h3>
-      <p>User since {signUpDate || "unavailable"}</p>
-      <div>
-        <LogoutButton />
-        <button onClick={deleteUser} type="submit">
-          Delete Account
-        </button>
-        <button onClick={verifyEmail} type="submit">
-          Verify Email
-        </button>
-      </div>
-      <form onSubmit={addDisplayName}>
-        <input
-          type="text"
-          name="displayName"
-          placeholder="New Username"
-          onChange={(e) => setDisplayName(e.target.value)}
-          value={displayName}
-        />
-        <button
-          type="submit"
-          disabled={
-            !displayName ||
-            displayName.includes(" ") ||
-            displayName.includes(" ")
-          }
-          onClick={addDisplayName}
+    <>
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          py: 4,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: 3,
+        }}
+      >
+        <Box
+          component="form"
+          noValidate
+          sx={{
+            justifyContent: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.5,
+          }}
         >
-          Update
-        </button>
-      </form>
-    </div>
+          <Button variant="contained" onClick={verifyEmail}>
+            Verify Email
+          </Button>
+          <Button variant="contained" onClick={deleteUser}>
+            Delete Account
+          </Button>
+          <Button variant="contained" onClick={signOutUser}>
+            Logout
+          </Button>
+          <Box display={"flex"} flexDirection={"row"} gap={1}>
+            <TextField
+              fullWidth
+              placeholder={currentUser.displayName || "Display Name"}
+              label="New Display Name"
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+            <Button variant="contained" onClick={addDisplayName}>
+              Update
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </>
   );
 };

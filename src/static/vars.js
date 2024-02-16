@@ -1,1 +1,1 @@
-export const BASE_DOMAIN = "recipe.willwhitehead.tech";
+export const BASE_DOMAIN = "http://localhost:3000";

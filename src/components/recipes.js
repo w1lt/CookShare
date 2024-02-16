@@ -2,13 +2,11 @@ import { useState, useEffect } from "react";
 import { db } from "../config/firebase";
 import { onSnapshot, query, collection } from "firebase/firestore";
 import { Recipe } from "./recipe";
-import { UserContext } from "../App";
-import { useContext } from "react";
-import { Navigate } from "react-router-dom";
+import { Box, Container, Grid } from "@mui/material";
 
-export const Recipes = () => {
-  const currentUser = useContext(UserContext);
+export const Recipes = ({ title }) => {
   const [recipeList, setRecipeList] = useState([]);
+  document.title = "CS | Home";
 
   useEffect(() => {
     const cachedRecipeList = localStorage.getItem("recipeList");
@@ -30,20 +28,24 @@ export const Recipes = () => {
   }, []);
 
   return (
-    <div>
-      {currentUser ? (
-        <div>
-          <h1>Recipes:</h1>
-          <div>
-            {recipeList &&
-              recipeList
-                .sort((a, b) => b.dateAuthored - a.dateAuthored)
-                .map((recipe) => <Recipe {...recipe} />)}
-          </div>
-        </div>
-      ) : (
-        <Navigate to="/login" />
-      )}
-    </div>
+    <>
+      <h1>{title}</h1>
+      <Container justifyContent="center">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
+            overflow: "scroll",
+          }}
+        >
+          {recipeList.map((recipe) => (
+            <Grid item key={recipe.id}>
+              <Recipe {...recipe} />
+            </Grid>
+          ))}
+        </Box>
+      </Container>
+    </>
   );
 };

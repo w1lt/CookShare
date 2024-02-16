@@ -1,34 +1,39 @@
 import { useParams } from "react-router-dom";
 import { Recipe } from "../components/recipe";
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
+
 export const RecipePost = () => {
   let { id } = useParams();
-  const [recipe, setRecipe] = useState([]);
+  const [recipe, setRecipe] = useState(null);
 
-  const getRecipeFromId = (id) => {
-    getDoc(doc(db, "users", id)).then((docSnap) => {
-      if (docSnap.exists()) {
-        setRecipe(docSnap.data());
-        // Store the username in localStorage
-        localStorage.setItem(`recipeList_${id}`, docSnap.data());
+  document.title =
+    recipe && Object.keys(recipe).length > 0
+      ? `CS | ${recipe.name}`
+      : "Loading Name...";
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "recipes", id), (doc) => {
+      if (doc.exists()) {
+        const updatedRecipe = {
+          ...doc.data(),
+          id: doc.id,
+        };
+        setRecipe(updatedRecipe);
+        localStorage.setItem(`recipeList_${id}`, JSON.stringify(updatedRecipe));
+      } else {
+        console.log("No such document!");
       }
     });
-  };
-
-  useEffect(() => {
-    // Check if the username is already cached in localStorage
-    const cachedRecipe = localStorage.getItem(`recipeList_${id}`);
-    if (cachedRecipe) {
-      setRecipe(cachedRecipe);
-    } else {
-      setRecipe(getRecipeFromId(id));
-    }
+    return () => unsub();
   }, [id]);
   return (
     <div>
-      <Recipe {...recipe} />
+      {recipe && Object.keys(recipe).length > 0 ? (
+        <Recipe {...recipe} />
+      ) : (
+        <h1>loading</h1>
+      )}
     </div>
   );
 };

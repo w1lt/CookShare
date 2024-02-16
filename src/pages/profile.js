@@ -12,6 +12,7 @@ import { db } from "../config/firebase";
 import { Recipe } from "../components/recipe";
 import { UserContext } from "../App";
 import { useContext, useEffect, useState } from "react";
+import { Box, Container, Grid, Typography } from "@mui/material";
 
 export const ProfilePage = () => {
   const [userInfo, setUserInfo] = useState({});
@@ -19,6 +20,7 @@ export const ProfilePage = () => {
   const [userRecipes, setUserRecipes] = useState([]);
   const currentUser = useContext(UserContext);
   let { username } = useParams();
+  document.title = `CS | ${username}`;
 
   useEffect(() => {
     const cachedUserInfo = localStorage.getItem(`userInfo_${username}`);
@@ -105,40 +107,47 @@ export const ProfilePage = () => {
   };
 
   return (
-    <div>
-      <div style={{ padding: "10px", fontSize: "20px" }}>
-        {username}
-        &nbsp;
-        {currentUser.displayName !== userInfo.username && (
-          <button onClick={() => followUser()}>
-            {userInfo && Object.keys(userInfo).length > 0 ? (
-              <div>
-                {userInfo.followers.includes(currentUser.uid)
-                  ? "Unfollow"
-                  : "Follow"}
-              </div>
-            ) : (
-              <div>Loading user information...</div>
-            )}
-          </button>
-        )}
-      </div>
-      <div>
-        {userInfo && Object.keys(userInfo).length > 0 ? (
-          <div>
-            {userRecipes.length || 0} Recipes | {userInfo.followers.length || 0}{" "}
-            Followers | {userInfo.following.length || 0} Following
-          </div>
-        ) : (
-          <div>Loading user information...</div>
-        )}
-      </div>
-      <div>{username}'s Recipes:</div>
+    <>
+      <h1>{username}</h1>
+      <Container component="main" maxWidth="xs">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 1,
+            padding: 2,
+            marginBottom: 1,
+          }}
+        >
+          <Typography variant="p" component="h4">
+            {userRecipes?.length} Recipes
+          </Typography>
+          <Typography variant="p" component="h4">
+            {userInfo.followers?.length} Followers
+          </Typography>
+          <Typography variant="p" component="h4">
+            {userInfo.following?.length} Following
+          </Typography>
+        </Box>
+      </Container>
 
-      <div>
-        {userRecipes &&
-          userRecipes.map((recipe) => <Recipe {...recipe} key={recipe.id} />)}
-      </div>
-    </div>
+      <Container justifyContent="center">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
+            overflow: "scroll",
+          }}
+        >
+          {userRecipes.map((recipe) => (
+            <Grid item key={recipe.id}>
+              <Recipe {...recipe} />
+            </Grid>
+          ))}
+        </Box>
+      </Container>
+    </>
   );
 };
