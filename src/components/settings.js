@@ -1,12 +1,12 @@
 import { auth } from "../config/firebase";
 import { updateProfile } from "firebase/auth";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import { UserContext } from "../App";
 import { checkValidUsername } from "./username";
 import { setDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { sendEmailVerification } from "firebase/auth";
-import { Box, Button, Container, TextField } from "@mui/material";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { signOut } from "firebase/auth";
 
 export const Settings = () => {
@@ -76,6 +76,9 @@ export const Settings = () => {
           gap: 3,
         }}
       >
+        <Typography variant="h4" component="h1">
+          {currentUser.displayName}
+        </Typography>
         <Box
           component="form"
           noValidate

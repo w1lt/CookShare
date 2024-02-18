@@ -9,10 +9,10 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { Recipe } from "../components/recipe";
+import { RecipeCard } from "../components/recipeCard";
 import { UserContext } from "../App";
 import { useContext, useEffect, useState } from "react";
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Button, Container, Grid, Typography } from "@mui/material";
 
 export const ProfilePage = () => {
   const [userInfo, setUserInfo] = useState({});
@@ -94,6 +94,8 @@ export const ProfilePage = () => {
 
       console.log("Followed user:", username);
     } else {
+      if (!window.confirm("Are you sure you want to unfollow this user?"))
+        return;
       await updateDoc(doc(db, "users", userId), {
         followers: userInfo.followers.filter(
           (user) => user !== currentUser.uid
@@ -108,8 +110,33 @@ export const ProfilePage = () => {
 
   return (
     <>
-      <h1>{username}</h1>
       <Container component="main" maxWidth="xs">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 1,
+          }}
+        >
+          <Typography variant="h4" component="h1">
+            {username}
+          </Typography>
+          {currentUser.displayName !== username && (
+            <Button
+              variant={
+                userInfo.followers?.includes(currentUser.uid)
+                  ? "contained"
+                  : "outlined"
+              }
+              onClick={followUser}
+            >
+              {userInfo.followers?.includes(currentUser.uid)
+                ? "Following"
+                : "Follow"}
+            </Button>
+          )}
+        </Box>
         <Box
           sx={{
             display: "flex",
@@ -132,18 +159,23 @@ export const ProfilePage = () => {
         </Box>
       </Container>
 
-      <Container justifyContent="center">
+      <Container
+        //align this to the center of the page
+        component="main"
+        maxWidth="lg"
+      >
         <Box
           sx={{
             display: "flex",
             flexDirection: "row",
             gap: 2,
-            overflow: "scroll",
+            flexWrap: "wrap",
+            justifyContent: "center",
           }}
         >
           {userRecipes.map((recipe) => (
             <Grid item key={recipe.id}>
-              <Recipe {...recipe} />
+              <RecipeCard {...recipe} />
             </Grid>
           ))}
         </Box>

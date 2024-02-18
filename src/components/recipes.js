@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { db } from "../config/firebase";
 import { onSnapshot, query, collection } from "firebase/firestore";
-import { Recipe } from "./recipe";
-import { Box, Container, Grid } from "@mui/material";
+import { RecipeCard } from "./recipeCard";
+import { Box, Container, Grid, Skeleton } from "@mui/material";
 
 export const Recipes = ({ title }) => {
   const [recipeList, setRecipeList] = useState([]);
+  const [loading, setLoading] = useState(true);
   document.title = "CS | Home";
 
   useEffect(() => {
+    setLoading(true);
     const cachedRecipeList = localStorage.getItem("recipeList");
     if (cachedRecipeList) {
       setRecipeList(JSON.parse(cachedRecipeList));
@@ -23,6 +25,7 @@ export const Recipes = ({ title }) => {
       setRecipeList(updatedRecipeList);
       localStorage.setItem("recipeList", JSON.stringify(updatedRecipeList));
     });
+    setLoading(false);
 
     return () => unsubscribe();
   }, []);
@@ -35,13 +38,17 @@ export const Recipes = ({ title }) => {
           sx={{
             display: "flex",
             flexDirection: "row",
-            gap: 2,
+            gap: 1,
             overflow: "scroll",
           }}
         >
           {recipeList.map((recipe) => (
             <Grid item key={recipe.id}>
-              <Recipe {...recipe} />
+              {!loading ? (
+                <RecipeCard {...recipe} />
+              ) : (
+                <Skeleton variant="rectangular" />
+              )}
             </Grid>
           ))}
         </Box>

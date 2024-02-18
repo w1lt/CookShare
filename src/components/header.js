@@ -2,14 +2,7 @@ import { Link } from "react-router-dom";
 import { UserContext } from "../App";
 import { useContext, useEffect } from "react";
 import { useState } from "react";
-import {
-  Box,
-  Button,
-  Container,
-  Menu,
-  MenuItem,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 export const Header = () => {
   const [currentPage, setCurrentPage] = useState("auth");
   const currentUser = useContext(UserContext);
@@ -17,14 +10,6 @@ export const Header = () => {
   useEffect(() => {
     if (window.location.pathname.includes("/auth")) {
       setCurrentPage("auth");
-    } else if (window.location.pathname.includes("/home")) {
-      setCurrentPage("home");
-    } else if (window.location.pathname.includes("/new-recipe")) {
-      setCurrentPage("new-recipe");
-    } else if (window.location.pathname.includes("/settings")) {
-      setCurrentPage("settings");
-    } else if (window.location.pathname.includes("/profile")) {
-      setCurrentPage("profile");
     }
   }, []);
 
@@ -56,7 +41,7 @@ export const Header = () => {
       <>
         <Container sx={{ paddingTop: 2 }}>
           <Typography variant="h4" component="div">
-            Recipe App 👨‍🍳
+            Cookshare 🍳
           </Typography>
           <Box
             sx={{

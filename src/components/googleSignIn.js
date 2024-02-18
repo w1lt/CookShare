@@ -32,6 +32,7 @@ export const GoogleSignIn = () => {
         color="primary"
         onClick={signInWithGoogle}
         type="submit"
+        style={{ textTransform: "none" }}
       >
         <GoogleIcon /> &nbsp;{" "}
         {isSignup ? "Sign Up with Google" : "Log In with Google"}

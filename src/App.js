@@ -6,7 +6,6 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import { Recipes } from "./components/recipes";
 import { RecipeForm } from "./components/recipeForm";
 import { Header } from "./components/header";
 import { UserSettings } from "./pages/userSettings";

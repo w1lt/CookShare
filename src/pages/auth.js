@@ -2,7 +2,7 @@ import { EmailSignUp } from "../components/emailSignUp";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "../App";
 import { useContext } from "react";
-import { Box, Container } from "@mui/material/";
+import { Container } from "@mui/material/";
 
 export const Auth = () => {
   const currentUser = useContext(UserContext);

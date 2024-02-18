@@ -22,8 +22,12 @@ import {
   Typography,
   Grid,
   LinearProgress,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { GoogleSignIn } from "./googleSignIn";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { lightBlue } from "@mui/material/colors";
 
 export const EmailSignUp = () => {
   const { loginType } = useParams();
@@ -33,6 +37,7 @@ export const EmailSignUp = () => {
   const [isSignup, setIsSignup] = useState(loginType);
   const [isloading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   document.title = isSignup ? "Cookshare | Sign Up" : "Cookshare | Log In";
 
@@ -45,8 +50,9 @@ export const EmailSignUp = () => {
   }, [loginType, isSignup]);
 
   const signIn = async (e) => {
-    setIsLoading(true);
     e.preventDefault();
+    if (!password) return;
+    setIsLoading(true);
     if (isSignup) {
       const validUsername = await checkValidUsername(username);
       if (validUsername) {
@@ -136,18 +142,6 @@ export const EmailSignUp = () => {
             gap: 2,
           }}
         >
-          <TextField
-            max-width="50%"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onFocus={() => setError(null)}
-            size="large"
-            variant="outlined"
-            label={isSignup ? "Username" : "Username or Email"}
-            autoFocus
-          />
-
           {isSignup && (
             <TextField
               fullWidth
@@ -158,42 +152,87 @@ export const EmailSignUp = () => {
               size="large"
               variant="outlined"
               label="Email"
+              placeholder="Email"
             />
           )}
+          <TextField
+            max-width="50%"
+            autoCapitalize="off"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onFocus={() => setError(null)}
+            size="large"
+            variant="outlined"
+            label={isSignup ? "Username" : "Username or Email"}
+            placeholder={isSignup ? "Username" : "Username or Email"}
+            autoFocus
+          />
 
           <TextField
             fullWidth
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onFocus={() => setError(null)}
             size="large"
             variant="outlined"
             label="Password"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           {isloading ? (
             <LinearProgress />
           ) : (
             <Button
+              style={{ textTransform: "none" }}
               variant="contained"
               onClick={signIn}
               type="submit"
+              sx={{
+                opacity: password.length < 6 || !username ? 0.65 : 1,
+              }}
               color={error ? "error" : "primary"}
-              disabled={
-                !password ||
-                !username ||
-                password.length < 6 ||
-                username.length < 3
-              }
             >
-              {error ? error : "Log In"}
+              {isSignup ? "Sign up" : "Log in"}
             </Button>
           )}
         </Box>
-        <Grid container>
+        <Grid
+          container
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: 1,
+          }}
+        >
+          <Grid item>
+            {error && (
+              <Typography variant="body2" color="error">
+                {error}
+              </Typography>
+            )}
+          </Grid>
+
           <Grid item>
             {isSignup ? "Have an account? " : "Don't have an account? "}
             <Link
+              style={{
+                textDecoration: "none",
+                color: lightBlue[500],
+                cursor: "pointer",
+              }}
               onClick={() => {
                 setError(null);
               }}
