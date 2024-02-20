@@ -92,9 +92,8 @@ export const SignleRecipe = (recipe) => {
             sx={{
               display: "flex",
               flexDirection: "row",
-              justifyContent: "space-between",
               alignItems: "center",
-              gap: 0.5,
+              gap: 0,
             }}
           >
             <Typography variant="h5">{recipe.name}</Typography>
@@ -104,15 +103,15 @@ export const SignleRecipe = (recipe) => {
                 cursor="pointer"
                 onClick={() => handleLikeRecipe()}
                 color="primary"
+                fontSize="medium"
               />
             ) : (
               <BookmarkBorderIcon
                 onClick={() => handleLikeRecipe()}
                 cursor="pointer"
+                fontSize="medium"
               />
             )}
-
-            {recipe.usersLiked.length}
           </Box>
 
           <Button

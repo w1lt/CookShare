@@ -9,39 +9,44 @@ import {
   Container,
   Grid,
   Icon,
+  IconButton,
   LinearProgress,
-  MenuItem,
   Select,
   Slider,
   TextField,
   Typography,
 } from "@mui/material";
-import AvTimerIcon from "@mui/icons-material/AvTimer";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import styled from "@emotion/styled";
 import Compress from "compress.js";
 import { Navigate } from "react-router-dom";
+import InputAdornment from "@mui/material/InputAdornment";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AddIcon from "@mui/icons-material/Add";
 
 export const RecipeForm = () => {
   const [isloading, setIsLoading] = useState(false);
   const [recipeName, setRecipeName] = useState("");
   const [ingredientsArr, setIngredientsArr] = useState([]);
   const [currIngredient, setCurrIngredient] = useState("");
-  const [instructions, setInstructions] = useState("");
+  const [instructionsArr, setInstructionsArr] = useState([]);
+  const [currInstruction, setCurrInstruction] = useState("");
   const [description, setDescription] = useState("");
   const [cookTime, setCookTime] = useState(30);
   const [ingredientAMT, setIngredientAMT] = useState("1");
-  const [selectedUnit, setSelectedUnit] = useState("");
+  const [selectedUnit, setSelectedUnit] = useState("single");
   const [recipeImage, setRecipeImage] = useState(null);
   const [servings, setServings] = useState("");
   const [recipeUploaded, setRecipeUploaded] = useState(null);
+  const [servingUnit, setServingUnit] = useState("serving");
 
   useEffect(() => {
     document.title = "CS | Add Recipe";
   }, []);
 
   const units = [
-    { value: "", label: "" },
+    { value: "single", label: "single" },
     { value: "serving", label: "serving" },
     { value: "Tsp", label: "tsp" },
     { value: "tbsp", label: "tbsp" },
@@ -57,6 +62,17 @@ export const RecipeForm = () => {
     { value: "scoop", label: "scoop" },
     { value: "box", label: "box" },
   ];
+
+  const calcCookTime = (cookTime) => {
+    // Convert cookTime to minutes and hours. if less than an hour just show minutes
+    const hours = Math.floor(cookTime / 60);
+    const minutes = cookTime % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m`;
+    }
+  };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -94,6 +110,17 @@ export const RecipeForm = () => {
     setCurrIngredient("");
   };
 
+  const handleAddInstruction = () => {
+    if (!currInstruction) return;
+    setInstructionsArr((prev) => [
+      ...prev,
+      {
+        instruction: currInstruction,
+      },
+    ]);
+    setCurrInstruction("");
+  };
+
   const VisuallyHiddenInput = styled("input")({
     clip: "rect(0 0 0 0)",
     clipPath: "inset(50%)",
@@ -113,29 +140,22 @@ export const RecipeForm = () => {
       await addDoc(collection(db, "recipes"), {
         name: recipeName,
         ingredients: ingredientsArr,
-        instructions: instructions,
+        instructions: instructionsArr,
         authorUid: auth.currentUser.uid,
         dateAuthored: new Date().toLocaleString(),
         usersLiked: [],
         description: description,
         cookTime: Number(cookTime),
-        servings: servings,
-      }) //then get the id of the new recipe and upload the image to storage using the id
-        .then(async (docRef) => {
-          const storage = getStorage();
-          const storageRef = ref(storage, `recipeImages/${docRef.id}`);
-          await uploadBytes(storageRef, recipeImage);
-          await updateDoc(doc(db, "recipes", docRef.id), {
-            image: await getDownloadURL(storageRef),
-          });
-          setRecipeUploaded(docRef.id);
+        servings: Number(servings),
+      }).then(async (docRef) => {
+        const storage = getStorage();
+        const storageRef = ref(storage, `recipeImages/${docRef.id}`);
+        await uploadBytes(storageRef, recipeImage);
+        await updateDoc(doc(db, "recipes", docRef.id), {
+          image: await getDownloadURL(storageRef),
         });
-
-      setIsLoading(false);
-      //clear input field and refresh their state
-      setRecipeName("");
-      setCurrIngredient("");
-      setInstructions("");
+        setRecipeUploaded(docRef.id);
+      });
     } catch (error) {
       console.error("Error adding recipe:", error);
     }
@@ -177,27 +197,30 @@ export const RecipeForm = () => {
             >
               <TextField
                 type="text"
-                sx={{ width: "80%" }}
-                placeholder="Spaghetti Carbonara"
+                placeholder="ex. Spaghetti Carbonara"
                 value={recipeName}
+                fullWidth
                 label="Recipe Name"
                 onChange={(e) => setRecipeName(e.target.value)}
                 variant="outlined"
               />
               <Button
                 component="label"
-                role={undefined}
                 variant="outlined"
-                color={recipeImage ? "secondary" : "primary"}
+                color={recipeImage ? "error" : "primary"}
                 tabIndex={-1}
                 sx={{ whiteSpace: "nowrap" }}
-                startIcon={<AddAPhotoIcon />}
+                startIcon={recipeImage ? null : <AddAPhotoIcon />}
               >
-                {recipeImage ? "Change Img" : "Add Img"}
-                <VisuallyHiddenInput
-                  type="file"
-                  onChange={(e) => handleImageUpload(e)}
-                />
+                {recipeImage ? "Remove Img" : "Add "}
+                {!recipeImage ? (
+                  <VisuallyHiddenInput
+                    type="file"
+                    onChange={(e) => handleImageUpload(e)}
+                  />
+                ) : (
+                  <VisuallyHiddenInput onClick={(e) => setRecipeImage(null)} />
+                )}
               </Button>
             </Box>
 
@@ -218,25 +241,29 @@ export const RecipeForm = () => {
               }}
             >
               <TextField
-                type="number"
+                id="quantity"
+                onFocus={(e) => setIngredientAMT("")}
+                inputProps={{ inputMode: "numeric" }}
                 variant="outlined"
                 label="Qty"
-                sx={{ width: "25%" }}
-                placeholder="5"
+                sx={{ width: "20%" }}
                 value={ingredientAMT}
-                onChange={(e) => setIngredientAMT(e.target.value)}
+                onChange={(e) =>
+                  setIngredientAMT(parseInt(e.target.value) || "")
+                }
               />
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={selectedUnit}
-                label="Age"
+                native
                 onChange={(e) => setSelectedUnit(e.target.value)}
+                sx={{ width: "35%" }}
               >
                 {units.map((unit, index) => (
-                  <MenuItem key={index} value={unit.value}>
+                  <option key={index} value={unit.value}>
                     {unit.label}
-                  </MenuItem>
+                  </option>
                 ))}
               </Select>
               <TextField
@@ -244,7 +271,7 @@ export const RecipeForm = () => {
                 fullWidth
                 variant="outlined"
                 label="Ingredient"
-                placeholder='"Enter" to Add'
+                placeholder="ex. eggs"
                 value={currIngredient}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -257,59 +284,130 @@ export const RecipeForm = () => {
                   }
                 }}
                 onChange={(e) => setCurrIngredient(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton>
+                        <AddIcon onClick={handleAddIngredient} />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
-            </Box>
-            <Box>
-              <Button
-                fullWidth
-                onClick={() => handleAddIngredient()}
-                variant="outlined"
-              >
-                Add Ingredient
-              </Button>
             </Box>
 
             <Grid container spacing={0.5}>
               {ingredientsArr.map((ingredient, index) => (
                 <Grid item key={index}>
                   <Button
-                    style={{ textTransform: "none" }}
+                    style={{ textTransform: "none", color: "inherit" }}
                     textTransform="none"
                     variant="outlined"
-                    onMouseOver={(e) =>
-                      (e.target.style.backgroundColor = "pink")
-                    }
-                    onMouseOut={(e) =>
-                      (e.target.style.backgroundColor = "white")
-                    }
                     onClick={() =>
                       setIngredientsArr((prev) =>
                         prev.filter((item) => item !== ingredient)
                       )
                     }
                   >
-                    {ingredient.amount} {ingredient.unit} {ingredient.name}
+                    {ingredient.amount} {ingredient.unit} {ingredient.name}{" "}
+                    <DeleteOutlineIcon
+                      style={{ marginLeft: "auto" }}
+                      onClick={() =>
+                        setIngredientsArr((prev) =>
+                          prev.filter((item) => item !== ingredient)
+                        )
+                      }
+                    />
                   </Button>
                 </Grid>
               ))}
             </Grid>
-
+            <Box sx={{ display: "flex", flexDirection: "row", gap: 0.5 }}>
+              <TextField
+                type="text"
+                variant="outlined"
+                label="Instruction"
+                placeholder="ex. Add sauce..."
+                value={currInstruction}
+                onChange={(e) => setCurrInstruction(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAddInstruction();
+                  } else if (e.key === ",") {
+                    handleAddInstruction();
+                  } else if (e.key === "Backspace" && !currInstruction) {
+                    setInstructionsArr((prev) => prev.slice(0, -1));
+                  }
+                }}
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton>
+                        <AddIcon onClick={handleAddInstruction} />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+            <Grid
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 0.5,
+                justifyContent: "left",
+              }}
+            >
+              {instructionsArr.map((instruction, index) => (
+                <Button
+                  key={index}
+                  sx={{
+                    justifyContent: "left",
+                    textAlign: "left",
+                    marginBottom: "0.25rem",
+                    alignSelf: "left",
+                    color: "inherit",
+                  }}
+                  style={{ textTransform: "none" }}
+                  textTransform="none"
+                  variant="outlined"
+                >
+                  {index + 1}. {instruction.instruction}
+                  <DeleteOutlineIcon //align to right side
+                    style={{ marginLeft: "auto" }}
+                    onClick={() =>
+                      setInstructionsArr((prev) =>
+                        prev.filter((item) => item !== instruction)
+                      )
+                    }
+                  />
+                </Button>
+              ))}
+            </Grid>
             <TextField
-              type="text"
-              variant="outlined"
-              label="Instructions"
-              placeholder="ex. Add sauce..."
-              value={instructions}
-              multiline
-              onChange={(e) => setInstructions(e.target.value)}
-            />
-            <TextField
-              type="text"
+              id="quantity"
+              inputProps={{ inputMode: "numeric" }}
               variant="outlined"
               label="Yield"
-              placeholder="ex. 6 servings"
+              placeholder="ex. 6 "
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end" sx={{ width: "40%" }}>
+                    <Select
+                      native
+                      value={servingUnit}
+                      variant="standard"
+                      onChange={(e) => setServingUnit(e.target.value)}
+                    >
+                      <option value="serving">servings</option>
+                      <option value="single">single</option>
+                    </Select>
+                  </InputAdornment>
+                ),
+              }}
               value={servings}
-              onChange={(e) => setServings(e.target.value)}
+              onChange={(e) => setServings(parseInt(e.target.value) || "")}
             />
 
             <Box
@@ -321,7 +419,7 @@ export const RecipeForm = () => {
               }}
             >
               <Icon sx={{ width: "10%" }}>
-                <AvTimerIcon />
+                <AccessTimeIcon />
               </Icon>
               <Slider
                 onChange={(e, value) => setCookTime(value)}
@@ -341,12 +439,8 @@ export const RecipeForm = () => {
                 min={5}
                 max={150}
               />
-              <Typography sx={{ width: "40%" }} id="non-linear-slider">
-                {cookTime < 60
-                  ? cookTime + " minutes"
-                  : Math.floor(cookTime / 60) +
-                    " hours " +
-                    (cookTime % 60 === 0 ? "" : (cookTime % 60) + "m")}{" "}
+              <Typography sx={{ width: "50%" }} id="non-linear-slider">
+                {calcCookTime(cookTime)}
               </Typography>
             </Box>
             {isloading ? (
@@ -358,7 +452,7 @@ export const RecipeForm = () => {
                 disabled={
                   !recipeName ||
                   !ingredientsArr ||
-                  !instructions ||
+                  !instructionsArr ||
                   !description ||
                   !recipeImage
                 }
