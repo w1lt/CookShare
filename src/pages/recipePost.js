@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { db } from "../config/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
-import { SignleRecipe } from "../components/singleRecipe";
+import { SingleRecipe } from "../components/singleRecipe";
 
 export const RecipePost = () => {
   let { id } = useParams();
@@ -30,7 +30,7 @@ export const RecipePost = () => {
   return (
     <div>
       {recipe && Object.keys(recipe).length > 0 ? (
-        <SignleRecipe {...recipe} />
+        <SingleRecipe {...recipe} />
       ) : (
         <h1>loading</h1>
       )}

@@ -79,6 +79,9 @@ export const Settings = () => {
         <Typography variant="h4" component="h1">
           {currentUser.displayName}
         </Typography>
+        <Typography variant="p" component="h4">
+          ({currentUser.email})
+        </Typography>
         <Box
           component="form"
           noValidate
@@ -89,13 +92,13 @@ export const Settings = () => {
             gap: 1.5,
           }}
         >
-          <Button variant="contained" onClick={verifyEmail}>
+          <Button variant="outlined" onClick={verifyEmail}>
             Verify Email
           </Button>
-          <Button variant="contained" onClick={deleteUser}>
+          <Button variant="outlined" onClick={deleteUser}>
             Delete Account
           </Button>
-          <Button variant="contained" onClick={signOutUser}>
+          <Button variant="outlined" onClick={signOutUser}>
             Logout
           </Button>
           <Box display={"flex"} flexDirection={"row"} gap={1}>
@@ -105,7 +108,7 @@ export const Settings = () => {
               label="New Display Name"
               onChange={(e) => setDisplayName(e.target.value)}
             />
-            <Button variant="contained" onClick={addDisplayName}>
+            <Button variant="outlined" onClick={addDisplayName}>
               Update
             </Button>
           </Box>

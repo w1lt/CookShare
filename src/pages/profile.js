@@ -2,56 +2,41 @@ import { useParams } from "react-router-dom";
 import {
   query,
   collection,
-  getDocs,
   where,
   updateDoc,
   doc,
   onSnapshot,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { RecipeCard } from "../components/recipeCard";
 import { UserContext } from "../App";
 import { useContext, useEffect, useState } from "react";
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
-
+import Dialog from "@mui/material/Dialog";
+import { GetUsername } from "../components/getUsername";
 export const ProfilePage = () => {
   const [userInfo, setUserInfo] = useState({});
   const [userId, setUserId] = useState("");
   const [userRecipes, setUserRecipes] = useState([]);
   const currentUser = useContext(UserContext);
+  const [followersOpen, setFollowersOpen] = useState(false);
+  const [followingOpen, setFollowingOpen] = useState(false);
+  const [authduserdata, setAuthduserdata] = useState({});
+
   let { username } = useParams();
+
   document.title = `CS | ${username}`;
 
   useEffect(() => {
-    const cachedUserInfo = localStorage.getItem(`userInfo_${username}`);
-    const cachedRecipeList = localStorage.getItem(`userRecipes_${username}`);
-
-    if (cachedUserInfo) {
-      setUserInfo(JSON.parse(cachedUserInfo));
-    }
-    if (cachedRecipeList) {
-      setUserRecipes(JSON.parse(cachedRecipeList));
-    }
-
     const q = query(collection(db, "users"), where("username", "==", username));
-    const unsubscribeUserData = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        const userData = snapshot.docs[0].data();
-        setUserInfo(userData);
-        console.log("Updated user info:");
-        setUserId(snapshot.docs[0].id);
-        localStorage.setItem(`userInfo_${username}`, JSON.stringify(userData));
-      } else {
-        console.error("No user found with username:", username);
-      }
+    const unsubscribeUserInfo = onSnapshot(q, (snapshot) => {
+      snapshot.forEach((doc) => {
+        setUserInfo(doc.data());
+        setUserId(doc.id);
+      });
     });
 
-    return () => {
-      unsubscribeUserData();
-    };
-  }, [username]);
-
-  useEffect(() => {
     if (userId) {
       const q2 = query(
         collection(db, "recipes"),
@@ -72,40 +57,36 @@ export const ProfilePage = () => {
 
       return () => {
         unsubscribeRecipeList();
+        unsubscribeUserInfo();
       };
     }
   }, [userId, username]);
 
   const followUser = async () => {
-    const q = query(
-      collection(db, "users"),
-      where("username", "==", currentUser.displayName)
-    );
-    const querySnapshot = await getDocs(q);
-    const authduserdata = querySnapshot.docs[0].data();
-    if (!userInfo.followers.includes(currentUser.uid)) {
-      await updateDoc(doc(db, "users", userId), {
-        followers: [...userInfo.followers, currentUser.uid],
-      });
+    await getDoc(doc(db, "users", currentUser.uid)).then((docSnap) => {
+      setAuthduserdata(docSnap.data());
+    });
 
-      await updateDoc(doc(db, "users", currentUser.uid), {
-        following: [...authduserdata.followers, userId],
-      });
+    const updatedFollowers = new Set(userInfo.followers || []);
+    const updatedFollowing = new Set(authduserdata.following || []);
 
-      console.log("Followed user:", username);
-    } else {
+    if (updatedFollowers.has(currentUser.uid)) {
       if (!window.confirm("Are you sure you want to unfollow this user?"))
         return;
-      await updateDoc(doc(db, "users", userId), {
-        followers: userInfo.followers.filter(
-          (user) => user !== currentUser.uid
-        ),
-      });
-      await updateDoc(doc(db, "users", currentUser.uid), {
-        following: authduserdata.followers.filter((user) => user !== userId),
-      });
-      console.log("Unfollowed user:", username);
+
+      updatedFollowers.delete(currentUser.uid);
+      updatedFollowing.delete(userId);
+    } else {
+      updatedFollowers.add(currentUser.uid);
+      updatedFollowing.add(userId);
     }
+
+    await updateDoc(doc(db, "users", userId), {
+      followers: [...updatedFollowers],
+    });
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      following: [...updatedFollowing],
+    });
   };
 
   return (
@@ -114,28 +95,28 @@ export const ProfilePage = () => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
             justifyContent: "center",
             gap: 1,
           }}
         >
           <Typography variant="h4" component="h1">
-            {username}
+            {username}{" "}
+            {currentUser.displayName !== username && (
+              <Button
+                variant={
+                  userInfo.followers?.includes(currentUser.uid)
+                    ? "contained"
+                    : "outlined"
+                }
+                onClick={followUser}
+              >
+                {userInfo.followers?.includes(currentUser.uid)
+                  ? "Following"
+                  : "Follow"}
+              </Button>
+            )}
           </Typography>
-          {currentUser.displayName !== username && (
-            <Button
-              variant={
-                userInfo.followers?.includes(currentUser.uid)
-                  ? "contained"
-                  : "outlined"
-              }
-              onClick={followUser}
-            >
-              {userInfo.followers?.includes(currentUser.uid)
-                ? "Following"
-                : "Follow"}
-            </Button>
-          )}
         </Box>
         <Box
           sx={{
@@ -150,20 +131,76 @@ export const ProfilePage = () => {
           <Typography variant="p" component="h4">
             {userRecipes?.length} Recipes
           </Typography>
-          <Typography variant="p" component="h4">
+          <Typography
+            variant="p"
+            component="h4"
+            onClick={() => setFollowersOpen(true)}
+          >
             {userInfo.followers?.length} Followers
           </Typography>
-          <Typography variant="p" component="h4">
+          <Typography
+            variant="p"
+            component="h4"
+            onClick={() => setFollowingOpen(true)}
+          >
             {userInfo.following?.length} Following
           </Typography>
         </Box>
       </Container>
 
-      <Container
-        //align this to the center of the page
-        component="main"
-        maxWidth="lg"
-      >
+      <Dialog open={followersOpen} onClose={() => setFollowersOpen(false)}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: 1,
+            padding: 2,
+            marginBottom: 1,
+          }}
+        >
+          {userInfo.followers?.map((follower) => (
+            <Typography
+              variant="p"
+              component="h4"
+              key={follower}
+              onClick={() => {
+                setFollowersOpen(false);
+              }}
+            >
+              <GetUsername userId={follower} />
+            </Typography>
+          ))}
+        </Box>
+      </Dialog>
+
+      <Dialog open={followingOpen} onClose={() => setFollowingOpen(false)}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: 1,
+            padding: 2,
+            marginBottom: 1,
+          }}
+        >
+          {userInfo.following?.map((follower) => (
+            <Typography
+              variant="p"
+              component="h4"
+              key={follower}
+              onClick={() => {
+                setFollowingOpen(false);
+              }}
+            >
+              <GetUsername userId={follower} />
+            </Typography>
+          ))}
+        </Box>
+      </Dialog>
+
+      <Container component="main" maxWidth="lg">
         <Box
           sx={{
             display: "flex",

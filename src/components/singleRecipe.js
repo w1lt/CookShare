@@ -15,7 +15,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { UserContext } from "../App";
 
-export const SignleRecipe = (recipe) => {
+export const SingleRecipe = (recipe) => {
   const currentUser = useContext(UserContext);
   const [authorUsername, setAuthorUsername] = useState("");
 
@@ -26,7 +26,7 @@ export const SignleRecipe = (recipe) => {
     if (cachedUsername) {
       setAuthorUsername(cachedUsername);
     } else {
-      setAuthorUsername(getUsernameFromUid(recipe.authorUid));
+      getUsernameFromUid(recipe.authorUid);
     }
   }, [recipe.authorUid]);
 
@@ -49,7 +49,6 @@ export const SignleRecipe = (recipe) => {
   };
 
   const calcCookTime = (cookTime) => {
-    // Convert cookTime to minutes and hours. if less than an hour just show minutes
     const hours = Math.floor(cookTime / 60);
     const minutes = cookTime % 60;
     if (hours > 0) {
@@ -59,8 +58,8 @@ export const SignleRecipe = (recipe) => {
     }
   };
 
-  const getUsernameFromUid = async (uid) => {
-    await getDoc(doc(db, "users", uid)).then((docSnap) => {
+  const getUsernameFromUid = (uid) => {
+    getDoc(doc(db, "users", uid)).then((docSnap) => {
       if (docSnap.exists()) {
         const username = docSnap.data().username;
         localStorage.setItem(`authorUsername_${uid}`, username);

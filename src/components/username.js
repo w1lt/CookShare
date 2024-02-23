@@ -1,5 +1,3 @@
-import { UserContext } from "../App";
-import { useContext } from "react";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import { db } from "../config/firebase";
 
@@ -18,11 +16,4 @@ export const checkValidUsername = async (username) => {
   } catch (error) {
     console.error("Error checking username:", error);
   }
-};
-export const Username = () => {
-  const currentUser = useContext(UserContext);
-
-  return (
-    <>{currentUser.displayName ? currentUser.displayName : currentUser.email}</>
-  );
 };

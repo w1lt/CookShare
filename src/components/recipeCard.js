@@ -34,6 +34,8 @@ export const RecipeCard = (recipe) => {
     }
   };
 
+  //resize image using sharp
+
   const copyRecipeLink = () => {
     const recipeLink = `${BASE_DOMAIN}/recipes/${recipe.id}`;
     navigator.clipboard.writeText(recipeLink);

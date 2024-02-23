@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "../config/firebase";
 import { Link, useParams } from "react-router-dom";
-import {
-  doc,
-  setDoc,
-  where,
-  query,
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -61,39 +54,21 @@ export const EmailSignUp = () => {
           async (userCredential) => {
             await setDoc(doc(db, "users", userCredential.user.uid), {
               username: username,
-              email: email,
               userId: userCredential.user.uid,
               followers: [],
               following: [],
-            }); // Create a new user document in Firestore
+            });
             await updateProfile(userCredential.user, {
               displayName: username,
-            }); // Set the user's display name to their username
+            });
             setIsLoading(false);
           }
         );
       }
     } else {
       try {
-        if (username.includes("@")) {
-          await signInWithEmailAndPassword(auth, username, password);
-        } else {
-          let LoginEmail;
-          const q = query(
-            collection(db, "users"),
-            where("username", "==", username)
-          );
-
-          const querySnapshot = await getDocs(q);
-          querySnapshot.forEach((doc) => {
-            LoginEmail = doc.data().email;
-          });
-          if (!LoginEmail) {
-            throw new Error("Wrong username / email");
-          }
-
-          await signInWithEmailAndPassword(auth, LoginEmail, password);
-        }
+        await signInWithEmailAndPassword(auth, email, password);
+        setIsLoading(false);
       } catch (error) {
         if (error.message === "auth/user-not-found") {
           setError("User not found");
@@ -142,32 +117,33 @@ export const EmailSignUp = () => {
             gap: 2,
           }}
         >
-          {isSignup && (
-            <TextField
-              fullWidth
-              type="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setError(null)}
-              size="large"
-              variant="outlined"
-              label="Email"
-              placeholder="Email"
-            />
-          )}
           <TextField
-            max-width="50%"
-            autoCapitalize="off"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            fullWidth
+            type="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             onFocus={() => setError(null)}
             size="large"
             variant="outlined"
-            label={isSignup ? "Username" : "Username or Email"}
-            placeholder={isSignup ? "Username" : "Username or Email"}
-            autoFocus
+            label="Email"
+            placeholder="Email"
           />
+
+          {isSignup && (
+            <TextField
+              max-width="50%"
+              autoCapitalize="off"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              onFocus={() => setError(null)}
+              size="large"
+              variant="outlined"
+              label="Username"
+              placeholder="Username"
+              autoFocus
+            />
+          )}
 
           <TextField
             fullWidth
