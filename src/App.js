@@ -55,10 +55,8 @@ function App() {
               <Route path="/Error404" element={<NotFound />} />
               <Route path="profile">
                 <Route path=":username" element={<ProfilePage />}>
-                  <Route
-                    path="followers"
-                    element={<ProfilePage showFollowers={true} />}
-                  />
+                  <Route path="followers" element={<ProfilePage />} />
+                  <Route path="following" element={<ProfilePage />} />
                 </Route>
               </Route>
               <Route path="/" element={<Auth />} />

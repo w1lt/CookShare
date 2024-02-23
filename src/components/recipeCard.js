@@ -21,6 +21,7 @@ import Dialog from "@mui/material/Dialog";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 export const RecipeCard = (recipe) => {
+  const [isloading, setIsLoading] = useState(false);
   const currentUser = useContext(UserContext);
   const [open, setOpen] = useState(false);
 
@@ -34,8 +35,6 @@ export const RecipeCard = (recipe) => {
     }
   };
 
-  //resize image using sharp
-
   const copyRecipeLink = () => {
     const recipeLink = `${BASE_DOMAIN}/recipes/${recipe.id}`;
     navigator.clipboard.writeText(recipeLink);
@@ -43,12 +42,14 @@ export const RecipeCard = (recipe) => {
   };
 
   const getUsernameFromUid = (uid) => {
+    setIsLoading(true);
     getDoc(doc(db, "users", uid)).then((docSnap) => {
       if (docSnap.exists()) {
         const username = docSnap.data().username;
         localStorage.setItem(`authorUsername_${uid}`, username);
       }
     });
+    setIsLoading(false);
   };
 
   const handleOpen = () => {
@@ -90,7 +91,9 @@ export const RecipeCard = (recipe) => {
       console.error("Error deleting recipe:", error);
     }
   };
-  return (
+  return isloading ? (
+    <Skeleton variant="rectangular" width={225} height={285} />
+  ) : (
     <>
       <Card
         onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
@@ -109,7 +112,7 @@ export const RecipeCard = (recipe) => {
         >
           <CardMedia
             component="img"
-            image={recipe.image || <Skeleton variant="rectangular" />}
+            image={recipe.image}
             sx={{
               height: 140,
               objectFit: "cover",

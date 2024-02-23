@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
 import {
   query,
   collection,
@@ -15,20 +15,32 @@ import { useContext, useEffect, useState } from "react";
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import { GetUsername } from "../components/getUsername";
+
 export const ProfilePage = () => {
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({});
   const [userId, setUserId] = useState("");
   const [userRecipes, setUserRecipes] = useState([]);
   const currentUser = useContext(UserContext);
-  const [followersOpen, setFollowersOpen] = useState(false);
-  const [followingOpen, setFollowingOpen] = useState(false);
+  const [followersOpen, setFollowersOpen] = useState();
+  const [followingOpen, setFollowingOpen] = useState();
   const [authduserdata, setAuthduserdata] = useState({});
+  const [isloading, setIsLoading] = useState(true);
 
   let { username } = useParams();
 
   document.title = `CS | ${username}`;
 
   useEffect(() => {
+    if (window.location.pathname.includes("followers")) {
+      setFollowersOpen(true);
+    } else if (window.location.pathname.includes("following")) {
+      setFollowingOpen(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsLoading(true);
     const q = query(collection(db, "users"), where("username", "==", username));
     const unsubscribeUserInfo = onSnapshot(q, (snapshot) => {
       snapshot.forEach((doc) => {
@@ -54,7 +66,7 @@ export const ProfilePage = () => {
           JSON.stringify(updatedRecipeList)
         );
       });
-
+      setIsLoading(false);
       return () => {
         unsubscribeRecipeList();
         unsubscribeUserInfo();
@@ -89,7 +101,15 @@ export const ProfilePage = () => {
     });
   };
 
-  return (
+  const handleCloseDialogs = () => {
+    setFollowersOpen(false);
+    setFollowingOpen(false);
+    navigate(`/profile/${username}`);
+  };
+
+  return isloading ? (
+    <h1>Loading...</h1>
+  ) : (
     <>
       <Container component="main" maxWidth="xs">
         <Box
@@ -134,21 +154,49 @@ export const ProfilePage = () => {
           <Typography
             variant="p"
             component="h4"
-            onClick={() => setFollowersOpen(true)}
+            style={
+              userInfo.followers?.length > 0
+                ? { cursor: "pointer" }
+                : { color: "gray" }
+            }
           >
-            {userInfo.followers?.length} Followers
+            <Link
+              style={{ textDecoration: "none", color: "inherit" }}
+              to={`/profile/${username}/followers`}
+              onClick={
+                userInfo.followers?.length > 0
+                  ? () => setFollowersOpen(true)
+                  : undefined
+              }
+            >
+              {userInfo.followers?.length} Followers
+            </Link>
           </Typography>
           <Typography
             variant="p"
             component="h4"
-            onClick={() => setFollowingOpen(true)}
+            style={
+              userInfo.following?.length > 0
+                ? { cursor: "pointer" }
+                : { color: "gray" }
+            }
           >
-            {userInfo.following?.length} Following
+            <Link
+              style={{ textDecoration: "none", color: "inherit" }}
+              to={`/profile/${username}/following`}
+              onClick={
+                userInfo.following?.length > 0
+                  ? () => setFollowingOpen(true)
+                  : undefined
+              }
+            >
+              {userInfo.following?.length} Following
+            </Link>
           </Typography>
         </Box>
       </Container>
 
-      <Dialog open={followersOpen} onClose={() => setFollowersOpen(false)}>
+      <Dialog open={followersOpen} onClose={() => handleCloseDialogs()}>
         <Box
           sx={{
             display: "flex",
@@ -168,13 +216,13 @@ export const ProfilePage = () => {
                 setFollowersOpen(false);
               }}
             >
-              <GetUsername userId={follower} />
+              <GetUsername userId={follower} authduserdata={authduserdata} />
             </Typography>
           ))}
         </Box>
       </Dialog>
 
-      <Dialog open={followingOpen} onClose={() => setFollowingOpen(false)}>
+      <Dialog open={followingOpen} onClose={() => handleCloseDialogs()}>
         <Box
           sx={{
             display: "flex",
@@ -194,7 +242,7 @@ export const ProfilePage = () => {
                 setFollowingOpen(false);
               }}
             >
-              <GetUsername userId={follower} />
+              <GetUsername userId={follower} currentUser={currentUser} />
             </Typography>
           ))}
         </Box>

@@ -1,36 +1,29 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../config/firebase";
 import { Link } from "react-router-dom";
 
-export const GetUsername = (uid) => {
-  const getUsernameFromUid = async (uid) => {
-    await getDoc(doc(db, "users", uid.userId)).then((docSnap) => {
-      console.log("money");
+export const GetUsername = ({ userId }) => {
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, "users", userId), (docSnap) => {
       if (docSnap.exists()) {
-        const username = docSnap.data().username;
-        localStorage.setItem(`authorUsername_${uid}`, username);
-        return;
+        const userData = docSnap.data();
+        setUserData(userData);
       }
     });
-  };
-  useEffect(() => {
-    const cachedUsername = localStorage.getItem(`authorUsername_${uid.userId}`);
-    if (cachedUsername) {
-    } else {
-      localStorage.setItem(
-        `authorUsername_${uid.userId}`,
-        getUsernameFromUid(uid.userId)
-      );
-    }
-  }, [uid]);
+
+    return () => unsubscribe();
+  }, [userId]);
 
   return (
     <>
       <Link
-        to={`/profile/${localStorage.getItem(`authorUsername_${uid.userId}`)}`}
+        to={`/profile/${userData.username}`}
+        style={{ textDecoration: "none", color: "inherit" }}
       >
-        {localStorage.getItem(`authorUsername_${uid.userId}`) || "loading..."}
+        {userData.username}{" "}
       </Link>
     </>
   );
