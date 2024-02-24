@@ -123,18 +123,20 @@ export const SingleRecipe = (recipe) => {
           </Button>
         </Box>
 
-        <img
-          src={recipe.image}
-          alt={recipe.name}
-          style={{
-            borderRadius: "10px",
-            width: "100%",
-            height: "100%",
-            backgroundPosition: "center center",
-            backgroundRepeat: "no-repeat",
-            overflow: "hidden",
-          }}
-        />
+        {recipe.image && (
+          <img
+            src={recipe.image}
+            alt={recipe.name}
+            style={{
+              borderRadius: "10px",
+              width: "100%",
+              height: "100%",
+              backgroundPosition: "center center",
+              backgroundRepeat: "no-repeat",
+              overflow: "hidden",
+            }}
+          />
+        )}
         <Typography variant="h8">
           "{recipe.description ? recipe.description : "No description"}"
         </Typography>
@@ -167,7 +169,16 @@ export const SingleRecipe = (recipe) => {
         </Box>
         <div>
           <h2>Instructions</h2>
-          {recipe.instructions}
+
+          {typeof recipe.instructions === "string" ? (
+            <p>{recipe.instructions}</p>
+          ) : (
+            <ol>
+              {recipe.instructions.map((instruction, index) => (
+                <li key={index}>{instruction}</li>
+              ))}
+            </ol>
+          )}
         </div>
       </Container>
     </>

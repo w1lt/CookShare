@@ -105,19 +105,14 @@ export const RecipeForm = () => {
         unit: selectedUnit,
       },
     ]);
-    setIngredientAMT("");
-    setSelectedUnit("oz");
+    setIngredientAMT("1");
+    setSelectedUnit("single");
     setCurrIngredient("");
   };
 
   const handleAddInstruction = () => {
     if (!currInstruction) return;
-    setInstructionsArr((prev) => [
-      ...prev,
-      {
-        instruction: currInstruction,
-      },
-    ]);
+    setInstructionsArr((prev) => [...prev, currInstruction]);
     setCurrInstruction("");
   };
 
@@ -148,6 +143,10 @@ export const RecipeForm = () => {
         cookTime: Number(cookTime),
         servings: Number(servings),
       }).then(async (docRef) => {
+        if (recipeImage === null) {
+          setRecipeUploaded(docRef.id);
+          return;
+        }
         const storage = getStorage();
         const storageRef = ref(storage, `recipeImages/${docRef.id}`);
         await uploadBytes(storageRef, recipeImage);
@@ -373,8 +372,8 @@ export const RecipeForm = () => {
                   textTransform="none"
                   variant="outlined"
                 >
-                  {index + 1}. {instruction.instruction}
-                  <DeleteOutlineIcon //align to right side
+                  {index + 1}. {instruction}
+                  <DeleteOutlineIcon
                     style={{ marginLeft: "auto" }}
                     onClick={() =>
                       setInstructionsArr((prev) =>
@@ -453,8 +452,7 @@ export const RecipeForm = () => {
                   !recipeName ||
                   !ingredientsArr ||
                   !instructionsArr ||
-                  !description ||
-                  !recipeImage
+                  !description
                 }
               >
                 Add Recipe

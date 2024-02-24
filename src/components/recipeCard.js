@@ -113,6 +113,7 @@ export const RecipeCard = (recipe) => {
           <CardMedia
             component="img"
             image={recipe.image}
+            alt={recipe.name}
             sx={{
               height: 140,
               objectFit: "cover",
@@ -187,7 +188,7 @@ export const RecipeCard = (recipe) => {
 
           <Dialog open={open} onClose={() => setOpen(false)}>
             {currentUser.uid === recipe.authorUid && (
-              <Button onClick={handleDeleteRecipe}>Delete</Button>
+              <Button onClick={handleDeleteRecipe}>Delete Recipe</Button>
             )}
             <Button onClick={copyRecipeLink}>Copy Link</Button>
           </Dialog>

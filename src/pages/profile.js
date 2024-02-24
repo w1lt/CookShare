@@ -183,7 +183,11 @@ export const ProfilePage = () => {
           >
             <Link
               style={{ textDecoration: "none", color: "inherit" }}
-              to={`/profile/${username}/following`}
+              to={
+                userInfo.following?.length > 0
+                  ? `/profile/${username}/following`
+                  : undefined
+              }
               onClick={
                 userInfo.following?.length > 0
                   ? () => setFollowingOpen(true)
