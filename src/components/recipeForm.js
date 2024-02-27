@@ -162,6 +162,17 @@ export const RecipeForm = () => {
   return (
     <>
       {recipeUploaded && <Navigate to={`/recipes/${recipeUploaded}`} />}
+      <Typography
+        variant="h4"
+        component="div"
+        sx={{
+          background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }}
+      >
+        Create Recipe
+      </Typography>
       <Container
         component="main"
         maxWidth="xs"
@@ -174,8 +185,6 @@ export const RecipeForm = () => {
         }}
       >
         <form onSubmit={onSubmitRecipe}>
-          <h1>Create New Recipe</h1>
-
           <Box
             component="form"
             noValidate

@@ -2,7 +2,14 @@ import { useState, useEffect } from "react";
 import { db } from "../config/firebase";
 import { onSnapshot, query, collection } from "firebase/firestore";
 import { RecipeCard } from "./recipeCard";
-import { Box, Container, Grid, Skeleton } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Container,
+  Grid,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 
 export const Recipes = ({ title }) => {
   const [recipeList, setRecipeList] = useState([]);
@@ -16,7 +23,6 @@ export const Recipes = ({ title }) => {
       setRecipeList(JSON.parse(cachedRecipeList));
     }
 
-    //pagenate the recipes
     const q = query(collection(db, "recipes"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const recipes = [];
@@ -33,7 +39,18 @@ export const Recipes = ({ title }) => {
 
   return (
     <>
-      <h1>{title}</h1>
+      <Typography
+        variant="h4"
+        component="div"
+        sx={{
+          background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }}
+      >
+        {title}
+      </Typography>
+      {loading && <CircularProgress />}
       <Container justifyContent="center">
         <Box
           sx={{

@@ -12,7 +12,14 @@ import { db } from "../config/firebase";
 import { RecipeCard } from "../components/recipeCard";
 import { UserContext } from "../App";
 import { useContext, useEffect, useState } from "react";
-import { Box, Button, Container, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import { GetUsername } from "../components/getUsername";
 
@@ -111,9 +118,12 @@ export const ProfilePage = () => {
             flexDirection: "column",
             justifyContent: "center",
             gap: 1,
+            background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
-          <Typography variant="h4" component="h1">
+          <Typography variant="h4" component="div">
             {username}{" "}
             {currentUser.displayName !== username && (
               <Button
@@ -234,6 +244,7 @@ export const ProfilePage = () => {
             marginBottom: 1,
           }}
         >
+          {!userInfo.following ? <CircularProgress /> : null}
           {userInfo.following?.map((follower) => (
             <Typography
               variant="p"

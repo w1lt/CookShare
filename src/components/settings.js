@@ -66,6 +66,17 @@ export const Settings = () => {
 
   return (
     <>
+      <Typography
+        variant="h4"
+        component="div"
+        sx={{
+          background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }}
+      >
+        {currentUser.displayName}
+      </Typography>
       <Container
         component="main"
         maxWidth="xs"
@@ -77,9 +88,6 @@ export const Settings = () => {
           gap: 3,
         }}
       >
-        <Typography variant="h4" component="h1">
-          {currentUser.displayName}
-        </Typography>
         <Typography variant="p" component="h4">
           ({currentUser.email})
         </Typography>
