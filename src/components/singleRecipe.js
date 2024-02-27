@@ -215,8 +215,8 @@ export const SingleRecipe = (recipe) => {
         </Typography>
 
         <Typography variant="body2" color="text.secondary">
-          {calcCookTime(recipe.cookTime)} - Makes{" "}
-          {recipe.servings ? recipe.servings : 1}
+          {calcCookTime(recipe.cookTime)} -{" "}
+          {recipe.servings ? recipe.servings : 1} Servings
         </Typography>
 
         <Box

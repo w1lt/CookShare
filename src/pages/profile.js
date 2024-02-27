@@ -158,17 +158,13 @@ export const ProfilePage = () => {
           <Typography variant="p" component="h4">
             {userRecipes?.length} Recipes
           </Typography>
-          <Typography
-            variant="p"
-            component="h4"
-            style={
-              userInfo.followers?.length > 0
-                ? { cursor: "pointer" }
-                : { color: "gray" }
-            }
-          >
+          <Typography variant="p" component="h4">
             <Link
-              style={{ textDecoration: "none", color: "inherit" }}
+              style={{
+                textDecoration: "none",
+                cursor: userInfo.followers?.length > 0 ? "pointer" : "default",
+                color: userInfo.followers?.length > 0 ? "inherit" : "gray",
+              }}
               to={
                 userInfo.followers?.length > 0
                   ? `/profile/${username}/followers`
@@ -180,20 +176,16 @@ export const ProfilePage = () => {
                   : undefined
               }
             >
-              {userInfo.followers?.length} Followers
+              {userInfo.followers?.length || 0} Followers
             </Link>
           </Typography>
-          <Typography
-            variant="p"
-            component="h4"
-            style={
-              userInfo.following?.length > 0
-                ? { cursor: "pointer" }
-                : { color: "gray" }
-            }
-          >
+          <Typography variant="p" component="h4">
             <Link
-              style={{ textDecoration: "none", color: "inherit" }}
+              style={{
+                textDecoration: "none",
+                cursor: userInfo.following?.length > 0 ? "pointer" : "default",
+                color: userInfo.following?.length > 0 ? "inherit" : "gray",
+              }}
               to={
                 userInfo.following?.length > 0
                   ? `/profile/${username}/following`
@@ -205,7 +197,7 @@ export const ProfilePage = () => {
                   : undefined
               }
             >
-              {userInfo.following?.length} Following
+              {userInfo.following?.length || 0} Following
             </Link>
           </Typography>
         </Box>
@@ -277,7 +269,7 @@ export const ProfilePage = () => {
           {isloading ? <CircularProgress /> : null}
           {userRecipes.map((recipe) => (
             <Grid item key={recipe.id}>
-              <RecipeCard {...recipe} />
+              {<RecipeCard {...recipe} />}
             </Grid>
           ))}
         </Box>

@@ -50,17 +50,19 @@ export const Header = () => {
     return (
       <>
         <Container sx={{ paddingTop: 2 }}>
-          <Typography
-            variant="h3"
-            component="div"
-            sx={{
-              background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            CookShare
-          </Typography>
+          <Link to="/home" style={{ textDecoration: "none", color: "inherit" }}>
+            <Typography
+              variant="h3"
+              component="div"
+              sx={{
+                background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              CookShare
+            </Typography>
+          </Link>
           <Box
             sx={{
               display: "flex",
