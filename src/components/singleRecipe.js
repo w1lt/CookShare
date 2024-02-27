@@ -21,6 +21,9 @@ export const SingleRecipe = (recipe) => {
   const currentUser = useContext(UserContext);
   const [authorUsername, setAuthorUsername] = useState("");
   const [showLikedAlert, setShowLikedAlert] = useState(false);
+  const [checkedItems, setCheckedItems] = useState(
+    new Array(recipe.ingredients.length).fill(false)
+  );
 
   useEffect(() => {
     getUsernameFromUid(recipe.authorUid);
@@ -35,13 +38,13 @@ export const SingleRecipe = (recipe) => {
           ),
         });
       } else {
-        await updateDoc(doc(db, "recipes", recipe.id), {
-          usersLiked: [...recipe.usersLiked, currentUser.uid],
-        });
         setShowLikedAlert(true);
         setTimeout(() => {
           setShowLikedAlert(false);
         }, 2500);
+        await updateDoc(doc(db, "recipes", recipe.id), {
+          usersLiked: [...recipe.usersLiked, currentUser.uid],
+        });
       }
     } catch (error) {
       console.error("Error liking recipe:", error);
@@ -100,7 +103,9 @@ export const SingleRecipe = (recipe) => {
               gap: 0,
             }}
           >
-            <Typography variant="h5">{recipe.name}</Typography>
+            <Typography variant="h5" style={{ verticalAlign: "middle" }}>
+              {recipe.name}
+            </Typography>
 
             {recipe.usersLiked.includes(currentUser.uid) ? (
               <BookmarkIcon
@@ -108,12 +113,14 @@ export const SingleRecipe = (recipe) => {
                 onClick={() => handleLikeRecipe()}
                 color="primary"
                 fontSize="medium"
+                style={{ verticalAlign: "middle" }}
               />
             ) : (
               <BookmarkBorderIcon
                 onClick={() => handleLikeRecipe()}
                 cursor="pointer"
                 fontSize="medium"
+                style={{ verticalAlign: "middle" }}
               />
             )}
           </Box>
@@ -164,10 +171,41 @@ export const SingleRecipe = (recipe) => {
                 key={index}
                 sx={{
                   padding: 0,
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
                 }}
               >
-                <Checkbox label={ingredient.name}></Checkbox>
-                {ingredient.amount} {ingredient.unit} {ingredient.name}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    textDecoration: checkedItems[index]
+                      ? "line-through"
+                      : "none",
+                    width: "100%",
+                  }}
+                  onClick={() => {
+                    const newCheckedItems = [...checkedItems];
+                    newCheckedItems[index] = !newCheckedItems[index];
+                    setCheckedItems(newCheckedItems);
+                  }}
+                >
+                  <Checkbox
+                    id={`ingredient-checkbox-${index}`}
+                    checked={checkedItems[index]}
+                    onChange={() => {
+                      const newCheckedItems = [...checkedItems];
+                      newCheckedItems[index] = !newCheckedItems[index];
+                      setCheckedItems(newCheckedItems);
+                    }}
+                  />
+                  <span>
+                    {ingredient.amount} {ingredient.unit} {ingredient.name}
+                  </span>
+                </div>
               </ListItem>
             ))}
           </List>
