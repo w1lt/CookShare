@@ -91,12 +91,15 @@ export const EmailSignUp = () => {
         }}
       >
         <Typography
-          component="h1"
-          variant="h4"
-          textAlign="center"
-          color="text.primary"
+          variant="h3"
+          component="div"
+          sx={{
+            background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
         >
-          Cookshare 👨‍🍳
+          CookShare
         </Typography>
         <Typography
           component="p"
@@ -173,10 +176,16 @@ export const EmailSignUp = () => {
             <Button
               style={{ textTransform: "none" }}
               variant="contained"
-              onClick={signIn}
+              onClick={
+                password.length < 6 || !email
+                  ? () => setError("Invalid username or password")
+                  : signIn
+              }
               type="submit"
               sx={{
-                opacity: password.length < 6 || !username ? 0.65 : 1,
+                opacity: password.length < 6 || !email ? 0.65 : 1,
+                cursor:
+                  password.length < 6 || !username ? "not-allowed" : "pointer",
               }}
               color={error ? "error" : "primary"}
             >

@@ -39,6 +39,10 @@ export const Settings = () => {
   };
   const addDisplayName = async (e) => {
     e.preventDefault();
+    if (displayName === "") {
+      alert("Please enter a valid display name");
+      return;
+    }
     try {
       if (await checkValidUsername(displayName)) {
         await updateProfile(auth.currentUser, {
@@ -75,7 +79,7 @@ export const Settings = () => {
           WebkitTextFillColor: "transparent",
         }}
       >
-        {currentUser.displayName}
+        {currentUser.displayName || "loading"}
       </Typography>
       <Container
         component="main"

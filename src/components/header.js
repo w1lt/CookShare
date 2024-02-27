@@ -16,7 +16,17 @@ export const Header = () => {
   if (!currentUser && currentPage !== "auth") {
     return (
       <div>
-        <h1>Recipe App! 👨‍🍳</h1>
+        <Typography
+          variant="h3"
+          component="div"
+          sx={{
+            background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          CookShare
+        </Typography>
         <Link
           onClick={() => {
             setCurrentPage("auth");

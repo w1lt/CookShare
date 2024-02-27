@@ -107,40 +107,44 @@ export const ProfilePage = () => {
     navigate(`/profile/${username}`);
   };
 
-  return isloading ? (
-    <h1>Loading...</h1>
-  ) : (
+  return (
     <>
       <Container component="main" maxWidth="xs">
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
             justifyContent: "center",
             gap: 1,
-            background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
           }}
         >
-          <Typography variant="h4" component="div">
-            {username}{" "}
-            {currentUser.displayName !== username && (
-              <Button
-                variant={
-                  userInfo.followers?.includes(currentUser.uid)
-                    ? "contained"
-                    : "outlined"
-                }
-                onClick={followUser}
-              >
-                {userInfo.followers?.includes(currentUser.uid)
-                  ? "Following"
-                  : "Follow"}
-              </Button>
-            )}
+          <Typography
+            variant="h4"
+            component="h4"
+            sx={{
+              background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            {username}
           </Typography>
+          {currentUser.displayName !== username && (
+            <Button
+              onClick={followUser}
+              variant={
+                userInfo.followers?.includes(currentUser.uid)
+                  ? "outlined"
+                  : "contained"
+              }
+            >
+              {userInfo.followers?.includes(currentUser.uid)
+                ? "Following"
+                : "Follow"}
+            </Button>
+          )}
         </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -270,6 +274,7 @@ export const ProfilePage = () => {
             justifyContent: "center",
           }}
         >
+          {isloading ? <CircularProgress /> : null}
           {userRecipes.map((recipe) => (
             <Grid item key={recipe.id}>
               <RecipeCard {...recipe} />

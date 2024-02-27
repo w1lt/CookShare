@@ -23,7 +23,15 @@ export const ThemeContext = createContext();
 function App() {
   const [currentUser, setCurrentUser] = useState([]);
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("darkMode") === "true";
+    const storedDarkMode = localStorage.getItem("darkMode");
+    if (storedDarkMode !== null) {
+      return storedDarkMode === "true";
+    } else {
+      return (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      );
+    }
   });
 
   auth.onAuthStateChanged((user) => {
