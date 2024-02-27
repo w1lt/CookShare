@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { db } from "../config/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { SingleRecipe } from "../components/singleRecipe";
+import { Skeleton } from "@mui/material";
 
 export const RecipePost = () => {
   let { id } = useParams();
@@ -12,6 +13,7 @@ export const RecipePost = () => {
     recipe && Object.keys(recipe).length > 0
       ? `CS | ${recipe.name}`
       : "Loading Name...";
+
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "recipes", id), (doc) => {
       if (doc.exists()) {
@@ -32,7 +34,12 @@ export const RecipePost = () => {
       {recipe && Object.keys(recipe).length > 0 ? (
         <SingleRecipe {...recipe} />
       ) : (
-        <h1>loading</h1>
+        <Skeleton
+          variant="rectangular"
+          width="100%"
+          height="100%"
+          sx={{ borderRadius: 1 }}
+        />
       )}
     </div>
   );

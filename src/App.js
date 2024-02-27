@@ -26,6 +26,11 @@ function App() {
     setCurrentUser(user);
   });
 
+  //get new user details on every page load
+  auth.onIdTokenChanged((user) => {
+    setCurrentUser(user);
+  });
+
   const THEME = createTheme({
     typography: {
       fontFamily: ` "apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen",`,

@@ -16,16 +16,17 @@ export const Recipes = ({ title }) => {
       setRecipeList(JSON.parse(cachedRecipeList));
     }
 
+    //pagenate the recipes
     const q = query(collection(db, "recipes"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const updatedRecipeList = snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      setRecipeList(updatedRecipeList);
-      localStorage.setItem("recipeList", JSON.stringify(updatedRecipeList));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const recipes = [];
+      querySnapshot.forEach((doc) => {
+        recipes.push({ ...doc.data(), id: doc.id });
+      });
+      setRecipeList(recipes);
+      localStorage.setItem("recipeList", JSON.stringify(recipes));
+      setLoading(false);
     });
-    setLoading(false);
 
     return () => unsubscribe();
   }, []);

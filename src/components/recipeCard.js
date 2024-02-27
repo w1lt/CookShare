@@ -5,6 +5,7 @@ import { db } from "../config/firebase";
 import { Link } from "react-router-dom";
 import { BASE_DOMAIN } from "../static/vars";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -12,6 +13,7 @@ import {
   CardContent,
   CardMedia,
   Skeleton,
+  Snackbar,
   Typography,
 } from "@mui/material";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
@@ -24,6 +26,7 @@ export const RecipeCard = (recipe) => {
   const [isloading, setIsLoading] = useState(false);
   const currentUser = useContext(UserContext);
   const [open, setOpen] = useState(false);
+  const [showLikedAlert, setShowLikedAlert] = useState(false);
 
   const calcCookTime = (cookTime) => {
     const hours = Math.floor(cookTime / 60);
@@ -78,6 +81,10 @@ export const RecipeCard = (recipe) => {
         await updateDoc(doc(db, "recipes", recipe.id), {
           usersLiked: [...recipe.usersLiked, currentUser.uid],
         });
+        setShowLikedAlert(true);
+        setTimeout(() => {
+          setShowLikedAlert(false);
+        }, 2500);
       }
     } catch (error) {
       console.error("Error liking recipe:", error);
@@ -95,12 +102,17 @@ export const RecipeCard = (recipe) => {
     <Skeleton variant="rectangular" width={225} height={285} />
   ) : (
     <>
+      <Snackbar open={showLikedAlert} autoHideDuration={3000}>
+        <Alert severity="success" sx={{ width: 300, margin: "auto" }}>
+          Recipe saved
+        </Alert>
+      </Snackbar>
       <Card
-        onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+        onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
         onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
         sx={{
           width: 225,
-          height: 285,
+          height: 280,
           margin: "1rem",
           transition: "transform 0.5s",
           boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",

@@ -2,12 +2,14 @@ import { getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useContext, useEffect, useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   Checkbox,
   Container,
   List,
   ListItem,
+  Snackbar,
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -18,16 +20,10 @@ import { UserContext } from "../App";
 export const SingleRecipe = (recipe) => {
   const currentUser = useContext(UserContext);
   const [authorUsername, setAuthorUsername] = useState("");
+  const [showLikedAlert, setShowLikedAlert] = useState(false);
 
   useEffect(() => {
-    const cachedUsername = localStorage.getItem(
-      `authorUsername_${recipe.authorUid}`
-    );
-    if (cachedUsername) {
-      setAuthorUsername(cachedUsername);
-    } else {
-      getUsernameFromUid(recipe.authorUid);
-    }
+    getUsernameFromUid(recipe.authorUid);
   }, [recipe.authorUid]);
 
   const handleLikeRecipe = async () => {
@@ -42,6 +38,10 @@ export const SingleRecipe = (recipe) => {
         await updateDoc(doc(db, "recipes", recipe.id), {
           usersLiked: [...recipe.usersLiked, currentUser.uid],
         });
+        setShowLikedAlert(true);
+        setTimeout(() => {
+          setShowLikedAlert(false);
+        }, 2500);
       }
     } catch (error) {
       console.error("Error liking recipe:", error);
@@ -62,7 +62,7 @@ export const SingleRecipe = (recipe) => {
     getDoc(doc(db, "users", uid)).then((docSnap) => {
       if (docSnap.exists()) {
         const username = docSnap.data().username;
-        localStorage.setItem(`authorUsername_${uid}`, username);
+        setAuthorUsername(username);
       }
     });
   };
@@ -78,6 +78,11 @@ export const SingleRecipe = (recipe) => {
           gap: 1,
         }}
       >
+        <Snackbar open={showLikedAlert} autoHideDuration={3000}>
+          <Alert severity="success" sx={{ width: 300, margin: "auto" }}>
+            Recipe saved
+          </Alert>
+        </Snackbar>
         <Box
           sx={{
             display: "flex",
@@ -119,7 +124,7 @@ export const SingleRecipe = (recipe) => {
             to={`/profile/${authorUsername}`}
             variant="outlined"
           >
-            {authorUsername}
+            {authorUsername ? authorUsername : "Loading..."}
           </Button>
         </Box>
 
@@ -161,7 +166,7 @@ export const SingleRecipe = (recipe) => {
                   padding: 0,
                 }}
               >
-                <Checkbox label={ingredient.name} />
+                <Checkbox label={ingredient.name}></Checkbox>
                 {ingredient.amount} {ingredient.unit} {ingredient.name}
               </ListItem>
             ))}

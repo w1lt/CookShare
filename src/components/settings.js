@@ -3,7 +3,7 @@ import { updateProfile } from "firebase/auth";
 import { useState, useContext } from "react";
 import { UserContext } from "../App";
 import { checkValidUsername } from "./username";
-import { setDoc, doc, deleteDoc } from "firebase/firestore";
+import { doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { sendEmailVerification } from "firebase/auth";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
@@ -43,15 +43,15 @@ export const Settings = () => {
         await updateProfile(auth.currentUser, {
           displayName: displayName,
         });
-        await setDoc(doc(db, "users", currentUser.uid), {
+        await updateDoc(doc(db, "users", currentUser.uid), {
           username: displayName,
         });
       }
       setDisplayName("");
-      alert("Display name updated successfully!");
     } catch (error) {
       alert("Error updating display name:", error.message);
     }
+    window.location.reload();
   };
 
   const verifyEmail = async () => {
@@ -103,10 +103,17 @@ export const Settings = () => {
           </Button>
           <Box display={"flex"} flexDirection={"row"} gap={1}>
             <TextField
+              type="text"
               fullWidth
               placeholder={currentUser.displayName || "Display Name"}
               label="New Display Name"
               onChange={(e) => setDisplayName(e.target.value)}
+              value={displayName}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  addDisplayName(e);
+                }
+              }}
             />
             <Button variant="outlined" onClick={addDisplayName}>
               Update

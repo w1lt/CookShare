@@ -1,4 +1,4 @@
-import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   query,
   collection,
@@ -61,10 +61,6 @@ export const ProfilePage = () => {
         }));
         setUserRecipes(updatedRecipeList);
         console.log("Updated recipe list:");
-        localStorage.setItem(
-          `userRecipes_${username}`,
-          JSON.stringify(updatedRecipeList)
-        );
       });
       setIsLoading(false);
       return () => {
@@ -83,9 +79,6 @@ export const ProfilePage = () => {
     const updatedFollowing = new Set(authduserdata.following || []);
 
     if (updatedFollowers.has(currentUser.uid)) {
-      if (!window.confirm("Are you sure you want to unfollow this user?"))
-        return;
-
       updatedFollowers.delete(currentUser.uid);
       updatedFollowing.delete(userId);
     } else {
