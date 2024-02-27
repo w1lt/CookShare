@@ -21,9 +21,23 @@ export const SingleRecipe = (recipe) => {
   const currentUser = useContext(UserContext);
   const [authorUsername, setAuthorUsername] = useState("");
   const [showLikedAlert, setShowLikedAlert] = useState(false);
-  const [checkedItems, setCheckedItems] = useState(
-    new Array(recipe.ingredients.length).fill(false)
-  );
+  const [checkedItems, setCheckedItems] = useState(() => {
+    const savedItems = localStorage.getItem(`checkedItems-${recipe.id}`);
+    return savedItems
+      ? JSON.parse(savedItems)
+      : new Array(recipe.ingredients.length).fill(false);
+  });
+
+  const saveCheckedItemsToLocalstorage = (items) => {
+    localStorage.setItem(`checkedItems-${recipe.id}`, JSON.stringify(items));
+  };
+
+  const handleCheckItem = (index) => {
+    const newCheckedItems = [...checkedItems];
+    newCheckedItems[index] = !newCheckedItems[index];
+    setCheckedItems(newCheckedItems);
+    saveCheckedItemsToLocalstorage(newCheckedItems);
+  };
 
   useEffect(() => {
     getUsernameFromUid(recipe.authorUid);
@@ -190,13 +204,12 @@ export const SingleRecipe = (recipe) => {
                   <Checkbox
                     id={`ingredient-checkbox-${index}`}
                     checked={checkedItems[index]}
+                    onChange={() => handleCheckItem(index)}
                   />
                   <span
                     style={{ cursor: "pointer" }}
                     onClick={() => {
-                      const newCheckedItems = [...checkedItems];
-                      newCheckedItems[index] = !newCheckedItems[index];
-                      setCheckedItems(newCheckedItems);
+                      handleCheckItem(index);
                     }}
                   >
                     {ingredient.amount} {ingredient.unit} {ingredient.name}
