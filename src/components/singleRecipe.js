@@ -181,28 +181,24 @@ export const SingleRecipe = (recipe) => {
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
-                    cursor: "pointer",
                     textDecoration: checkedItems[index]
                       ? "line-through"
                       : "none",
                     width: "100%",
                   }}
-                  onClick={() => {
-                    const newCheckedItems = [...checkedItems];
-                    newCheckedItems[index] = !newCheckedItems[index];
-                    setCheckedItems(newCheckedItems);
-                  }}
                 >
                   <Checkbox
                     id={`ingredient-checkbox-${index}`}
                     checked={checkedItems[index]}
-                    onChange={() => {
+                  />
+                  <span
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
                       const newCheckedItems = [...checkedItems];
                       newCheckedItems[index] = !newCheckedItems[index];
                       setCheckedItems(newCheckedItems);
                     }}
-                  />
-                  <span>
+                  >
                     {ingredient.amount} {ingredient.unit} {ingredient.name}
                   </span>
                 </div>
