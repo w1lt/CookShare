@@ -146,6 +146,7 @@ export const SingleRecipe = (recipe) => {
               gap: 0,
             }}
           >
+            {recipe.usersLiked.length}
             {recipe.usersLiked.includes(currentUser.uid) ? (
               <BookmarkIcon
                 cursor="pointer"

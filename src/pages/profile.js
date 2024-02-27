@@ -155,7 +155,11 @@ export const ProfilePage = () => {
           >
             <Link
               style={{ textDecoration: "none", color: "inherit" }}
-              to={`/profile/${username}/followers`}
+              to={
+                userInfo.followers?.length > 0
+                  ? `/profile/${username}/followers`
+                  : undefined
+              }
               onClick={
                 userInfo.followers?.length > 0
                   ? () => setFollowersOpen(true)

@@ -39,7 +39,6 @@ export const RecipeForm = () => {
   const [recipeImage, setRecipeImage] = useState(null);
   const [servings, setServings] = useState("");
   const [recipeUploaded, setRecipeUploaded] = useState(null);
-  const [servingUnit, setServingUnit] = useState("serving");
 
   useEffect(() => {
     document.title = "CS | Add Recipe";
@@ -175,7 +174,7 @@ export const RecipeForm = () => {
         }}
       >
         <form onSubmit={onSubmitRecipe}>
-          <h1>Add Recipe</h1>
+          <h1>Create New Recipe</h1>
 
           <Box
             component="form"
@@ -393,15 +392,7 @@ export const RecipeForm = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end" sx={{ width: "40%" }}>
-                    <Select
-                      native
-                      value={servingUnit}
-                      variant="standard"
-                      onChange={(e) => setServingUnit(e.target.value)}
-                    >
-                      <option value="serving">servings</option>
-                      <option value="single">single</option>
-                    </Select>
+                    Servings
                   </InputAdornment>
                 ),
               }}
@@ -455,7 +446,7 @@ export const RecipeForm = () => {
                   !description
                 }
               >
-                Add Recipe
+                Create Recipe!
               </Button>
             )}
           </Box>
