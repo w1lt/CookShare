@@ -1,4 +1,4 @@
-import { getDoc, doc, updateDoc } from "firebase/firestore";
+import { getDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useContext, useEffect, useState } from "react";
 import {
@@ -7,6 +7,7 @@ import {
   Button,
   Checkbox,
   Container,
+  Dialog,
   List,
   ListItem,
   Snackbar,
@@ -16,11 +17,14 @@ import { Link } from "react-router-dom";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { UserContext } from "../App";
+import { MoreVert } from "@mui/icons-material";
+import { BASE_DOMAIN } from "../static/vars";
 
 export const SingleRecipe = (recipe) => {
   const currentUser = useContext(UserContext);
   const [authorUsername, setAuthorUsername] = useState("");
   const [showLikedAlert, setShowLikedAlert] = useState(false);
+  const [open, setOpen] = useState(false);
   const [checkedItems, setCheckedItems] = useState(() => {
     const savedItems = localStorage.getItem(`checkedItems-${recipe.id}`);
     return savedItems
@@ -37,6 +41,10 @@ export const SingleRecipe = (recipe) => {
     newCheckedItems[index] = !newCheckedItems[index];
     setCheckedItems(newCheckedItems);
     saveCheckedItemsToLocalstorage(newCheckedItems);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
   };
 
   useEffect(() => {
@@ -74,6 +82,18 @@ export const SingleRecipe = (recipe) => {
       return `${minutes}m`;
     }
   };
+  const copyRecipeLink = () => {
+    const recipeLink = `${BASE_DOMAIN}/recipes/${recipe.id}`;
+    navigator.clipboard.writeText(recipeLink);
+    setOpen(false);
+  };
+  const handleDeleteRecipe = async (id) => {
+    try {
+      await deleteDoc(doc(db, "recipes", recipe.id));
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+    }
+  };
 
   const getUsernameFromUid = (uid) => {
     getDoc(doc(db, "users", uid)).then((docSnap) => {
@@ -92,7 +112,7 @@ export const SingleRecipe = (recipe) => {
           py: 4,
           display: "flex",
           flexDirection: "column",
-          gap: 1,
+          gap: 0.5,
         }}
       >
         <Snackbar open={showLikedAlert} autoHideDuration={3000}>
@@ -109,6 +129,15 @@ export const SingleRecipe = (recipe) => {
             gap: 0.5,
           }}
         >
+          <Typography
+            variant="h6"
+            sx={{
+              display: "inline",
+              verticalAlign: "middle",
+            }}
+          >
+            {recipe.name}
+          </Typography>
           <Box
             sx={{
               display: "flex",
@@ -117,36 +146,39 @@ export const SingleRecipe = (recipe) => {
               gap: 0,
             }}
           >
-            <Typography variant="h5" style={{ verticalAlign: "middle" }}>
-              {recipe.name}
-            </Typography>
-
             {recipe.usersLiked.includes(currentUser.uid) ? (
               <BookmarkIcon
                 cursor="pointer"
                 onClick={() => handleLikeRecipe()}
                 color="primary"
                 fontSize="medium"
-                style={{ verticalAlign: "middle" }}
+                sx={{
+                  verticalAlign: "middle",
+                }}
               />
             ) : (
               <BookmarkBorderIcon
                 onClick={() => handleLikeRecipe()}
                 cursor="pointer"
                 fontSize="medium"
-                style={{ verticalAlign: "middle" }}
+                sx={{
+                  verticalAlign: "middle",
+                }}
               />
             )}
+            <MoreVert
+              style={{ marginLeft: "auto" }}
+              cursor="pointer"
+              onClick={handleOpen}
+            />
           </Box>
 
-          <Button
-            style={{ textTransform: "none" }}
-            component={Link}
-            to={`/profile/${authorUsername}`}
-            variant="outlined"
-          >
-            {authorUsername ? authorUsername : "Loading..."}
-          </Button>
+          <Dialog open={open} onClose={() => setOpen(false)}>
+            {currentUser.uid === recipe.authorUid && (
+              <Button onClick={handleDeleteRecipe}>Delete Recipe</Button>
+            )}
+            <Button onClick={copyRecipeLink}>Copy Link</Button>
+          </Dialog>
         </Box>
 
         {recipe.image && (
@@ -163,9 +195,24 @@ export const SingleRecipe = (recipe) => {
             }}
           />
         )}
-        <Typography variant="h8">
-          "{recipe.description ? recipe.description : "No description"}"
+        <Typography
+          variant="h8"
+          sx={{
+            fontStyle: "italic",
+          }}
+        >
+          "{recipe.description ? recipe.description : "No description"}" -{" "}
+          <Typography
+            style={{
+              color: "inherit",
+            }}
+            component={Link}
+            to={`/profile/${authorUsername}`}
+          >
+            {authorUsername ? authorUsername : "Loading..."}
+          </Typography>
         </Typography>
+
         <Typography variant="body2" color="text.secondary">
           {calcCookTime(recipe.cookTime)} - Makes{" "}
           {recipe.servings ? recipe.servings : 1}
@@ -225,11 +272,42 @@ export const SingleRecipe = (recipe) => {
           {typeof recipe.instructions === "string" ? (
             <p>{recipe.instructions}</p>
           ) : (
-            <ol>
-              {recipe.instructions.map((instruction, index) => (
-                <li key={index}>{instruction}</li>
-              ))}
-            </ol>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                gap: 1,
+              }}
+            >
+              <List>
+                {recipe.instructions.map((instruction, index) => (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      padding: 0,
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+
+                        width: "100%",
+                      }}
+                    >
+                      {index + 1}
+                      {". "}
+                      {instruction}
+                    </div>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
           )}
         </div>
       </Container>

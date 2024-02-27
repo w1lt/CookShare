@@ -8,6 +8,7 @@ import { db } from "../config/firebase";
 import { sendEmailVerification } from "firebase/auth";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { signOut } from "firebase/auth";
+import DarkModeToggle from "./darkModeToggle";
 
 export const Settings = () => {
   const currentUser = useContext(UserContext);
@@ -101,6 +102,7 @@ export const Settings = () => {
           <Button variant="outlined" onClick={signOutUser}>
             Logout
           </Button>
+          <DarkModeToggle />
           <Box display={"flex"} flexDirection={"row"} gap={1}>
             <TextField
               type="text"
