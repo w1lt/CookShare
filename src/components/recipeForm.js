@@ -220,7 +220,7 @@ export const RecipeForm = () => {
               <Button
                 component="label"
                 variant="outlined"
-                color={recipeImage ? "error" : "primary"}
+                color={recipeImage ? "error" : "inherit"}
                 tabIndex={-1}
                 sx={{ whiteSpace: "nowrap" }}
                 startIcon={recipeImage ? null : <AddAPhotoIcon />}
@@ -422,31 +422,50 @@ export const RecipeForm = () => {
                 display: "flex",
                 flexDirection: "row",
                 gap: 1,
+                justifyContent: "space-between",
                 alignItems: "center",
               }}
             >
-              <Icon sx={{ width: "10%" }}>
-                <AccessTimeIcon />
-              </Icon>
-              <Slider
-                onChange={(e, value) => setCookTime(value)}
-                value={cookTime}
-                defaultValue={30}
-                valueLabelDisplay="auto"
-                shiftStep={30}
-                step={5}
-                marks
-                color={
-                  cookTime <= 60
-                    ? "success"
-                    : cookTime > 60 && cookTime <= 120
-                    ? "warning"
-                    : "error"
-                }
-                min={5}
-                max={150}
-              />
-              <Typography sx={{ width: "30%" }} id="non-linear-slider">
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 1,
+                  alignItems: "center",
+                }}
+              >
+                <Icon>
+                  <AccessTimeIcon />
+                </Icon>
+                <Slider
+                  onChange={(e, value) => setCookTime(value)}
+                  value={cookTime}
+                  defaultValue={30}
+                  valueLabelDisplay="auto"
+                  shiftStep={30}
+                  step={5}
+                  marks
+                  color={
+                    cookTime <= 60
+                      ? "success"
+                      : cookTime > 60 && cookTime <= 120
+                      ? "warning"
+                      : "error"
+                  }
+                  min={5}
+                  max={150}
+                />
+              </Box>
+              <Typography
+                sx={{ width: "20%" }}
+                id="non-linear-slider"
+                style={{
+                  justifyContent: "right",
+                  textAlign: "right",
+                  alignSelf: "right",
+                }}
+              >
                 {calcCookTime(cookTime)}
               </Typography>
             </Box>
@@ -454,7 +473,7 @@ export const RecipeForm = () => {
               <LinearProgress />
             ) : (
               <Button
-                variant="contained"
+                variant="outlined"
                 onClick={(e) => onSubmitRecipe(e)}
                 disabled={
                   !recipeName ||

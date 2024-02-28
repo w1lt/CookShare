@@ -16,8 +16,8 @@ const DarkModeToggle = () => {
   };
 
   return (
-    <Button onClick={handleChange} variant="contained">
-      Toggle {darkMode ? "Light Mode" : "Dark Mode"}
+    <Button onClick={handleChange} variant="outlined">
+      Enable {darkMode ? "Light Mode" : "Dark Mode"}
     </Button>
   );
 };

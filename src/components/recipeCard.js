@@ -7,11 +7,12 @@ import { BASE_DOMAIN } from "../static/vars";
 import {
   Alert,
   Box,
-  Button,
   Card,
   CardActions,
   CardContent,
   CardMedia,
+  Menu,
+  MenuItem,
   Skeleton,
   Snackbar,
   Typography,
@@ -19,14 +20,21 @@ import {
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import Dialog from "@mui/material/Dialog";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 export const RecipeCard = (recipe) => {
   const currentUser = useContext(UserContext);
-  const [open, setOpen] = useState(false);
   const [showLikedAlert, setShowLikedAlert] = useState(false);
   const [authorUsername, setAuthorUsername] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const calcCookTime = (cookTime) => {
     const hours = Math.floor(cookTime / 60);
@@ -41,11 +49,7 @@ export const RecipeCard = (recipe) => {
   const copyRecipeLink = () => {
     const recipeLink = `${BASE_DOMAIN}/recipes/${recipe.id}`;
     navigator.clipboard.writeText(recipeLink);
-    setOpen(false);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
+    handleClose();
   };
 
   useEffect(() => {
@@ -123,7 +127,10 @@ export const RecipeCard = (recipe) => {
         >
           <CardMedia
             component="img"
-            image={recipe.image}
+            image={
+              recipe.image ||
+              "https://www.mimisrecipes.com/wp-content/uploads/2018/12/recipe-placeholder-featured.jpg"
+            }
             alt={recipe.name}
             sx={{
               height: 140,
@@ -200,15 +207,15 @@ export const RecipeCard = (recipe) => {
           <MoreHorizIcon
             style={{ marginLeft: "auto" }}
             cursor="pointer"
-            onClick={handleOpen}
+            onClick={handleClick}
           />
 
-          <Dialog open={open} onClose={() => setOpen(false)}>
+          <Menu anchorEl={anchorEl} open={Boolean(open)} onClose={handleClose}>
+            <MenuItem onClick={copyRecipeLink}>Copy Link</MenuItem>
             {currentUser.uid === recipe.authorUid && (
-              <Button onClick={handleDeleteRecipe}>Delete Recipe</Button>
+              <MenuItem onClick={handleDeleteRecipe}>Delete</MenuItem>
             )}
-            <Button onClick={copyRecipeLink}>Copy Link</Button>
-          </Dialog>
+          </Menu>
         </CardActions>
       </Card>
     </>

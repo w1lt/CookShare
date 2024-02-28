@@ -10,7 +10,7 @@ export const Footer = () => {
         <footer>
           <Divider />
           <p style={{ textAlign: "center" }}>
-            &copy; {new Date().getFullYear()} CookShare, All Rights Reserved
+            &copy; {new Date().getFullYear()} CookShare
           </p>
         </footer>
       </Container>

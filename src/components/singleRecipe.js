@@ -7,30 +7,39 @@ import {
   Button,
   Checkbox,
   Container,
-  Dialog,
   List,
   ListItem,
+  Menu,
+  MenuItem,
   Snackbar,
   Typography,
 } from "@mui/material";
-import { Link } from "react-router-dom";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { UserContext } from "../App";
 import { MoreVert } from "@mui/icons-material";
 import { BASE_DOMAIN } from "../static/vars";
+import { Link } from "react-router-dom";
 
 export const SingleRecipe = (recipe) => {
   const currentUser = useContext(UserContext);
   const [authorUsername, setAuthorUsername] = useState("");
   const [showLikedAlert, setShowLikedAlert] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
   const [checkedItems, setCheckedItems] = useState(() => {
     const savedItems = localStorage.getItem(`checkedItems-${recipe.id}`);
     return savedItems
       ? JSON.parse(savedItems)
       : new Array(recipe.ingredients.length).fill(false);
   });
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const saveCheckedItemsToLocalstorage = (items) => {
     localStorage.setItem(`checkedItems-${recipe.id}`, JSON.stringify(items));
@@ -41,10 +50,6 @@ export const SingleRecipe = (recipe) => {
     newCheckedItems[index] = !newCheckedItems[index];
     setCheckedItems(newCheckedItems);
     saveCheckedItemsToLocalstorage(newCheckedItems);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
   };
 
   useEffect(() => {
@@ -85,7 +90,7 @@ export const SingleRecipe = (recipe) => {
   const copyRecipeLink = () => {
     const recipeLink = `${BASE_DOMAIN}/recipes/${recipe.id}`;
     navigator.clipboard.writeText(recipeLink);
-    setOpen(false);
+    handleClose();
   };
   const handleDeleteRecipe = async (id) => {
     try {
@@ -125,10 +130,8 @@ export const SingleRecipe = (recipe) => {
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
-            alignItems: "flex-end",
-            alignContent: "flex-end",
-            //align everything at the bottom
-
+            alignContent: "center",
+            alignItems: "center",
             gap: 0.5,
           }}
         >
@@ -137,20 +140,36 @@ export const SingleRecipe = (recipe) => {
             sx={{
               margin: 0,
               padding: 0,
-              lineHeight: 1.1,
             }}
           >
             {recipe.name}
           </Typography>
+
           <Box
             sx={{
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
-              gap: 0,
+              gap: 0.1,
             }}
           >
-            {recipe.usersLiked.length}
+            <Button
+              component={Link}
+              variant="outlined"
+              to={`/profile/${authorUsername}`}
+              style={{
+                textTransform: "none",
+                textDecoration: "none",
+                color: "inherit",
+                paddingLeft: 0,
+                paddingRight: 0,
+                paddingTop: 0,
+                paddingBottom: 0,
+                margin: 0,
+              }}
+            >
+              {authorUsername}
+            </Button>
             {recipe.usersLiked.includes(currentUser.uid) ? (
               <BookmarkIcon
                 cursor="pointer"
@@ -172,62 +191,60 @@ export const SingleRecipe = (recipe) => {
               />
             )}
             <MoreVert
-              style={{ marginLeft: "auto" }}
+              id="recipe-menu"
+              style={{ padding: 0, margin: 0 }}
               cursor="pointer"
-              onClick={handleOpen}
+              onClick={handleClick}
             />
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(open)}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={copyRecipeLink}>Copy Link</MenuItem>
+              {currentUser.uid === recipe.authorUid && (
+                <MenuItem onClick={handleDeleteRecipe}>Delete</MenuItem>
+              )}
+            </Menu>
           </Box>
-
-          <Dialog open={open} onClose={() => setOpen(false)}>
-            {currentUser.uid === recipe.authorUid && (
-              <Button onClick={handleDeleteRecipe}>Delete Recipe</Button>
-            )}
-            <Button onClick={copyRecipeLink}>Copy Link</Button>
-          </Dialog>
         </Box>
 
-        {recipe.image && (
-          <img
-            src={recipe.image}
-            alt={recipe.name}
-            style={{
-              borderRadius: "10px",
-              width: "100%",
-              height: "100%",
-              backgroundPosition: "center center",
-              backgroundRepeat: "no-repeat",
-              overflow: "hidden",
-            }}
-          />
-        )}
+        <img
+          src={
+            recipe.image ||
+            "https://www.mimisrecipes.com/wp-content/uploads/2018/12/recipe-placeholder-featured.jpg"
+          }
+          alt={recipe.name}
+          style={{
+            borderRadius: "10px",
+          }}
+        />
         <Typography
           variant="h8"
           sx={{
             fontStyle: "italic",
+            display: "flex",
+            justifyContent: "center",
+            paddingTop: 1,
           }}
         >
-          "{recipe.description ? recipe.description : "No description"}" -{" "}
-          <Typography
-            style={{
-              color: "inherit",
-            }}
-            component={Link}
-            to={`/profile/${authorUsername}`}
-          >
-            {authorUsername ? authorUsername : "Loading..."}
-          </Typography>
+          "{recipe.description ? recipe.description : ""}"
         </Typography>
 
-        <Typography variant="body2" color="text.secondary">
-          {calcCookTime(recipe.cookTime)} -{" "}
-          {recipe.servings ? recipe.servings : 1} Servings
+        <Typography
+          variant="h6"
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          What you'll need:
         </Typography>
-
         <Box
           sx={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "center",
+            justifyContent: "left",
             gap: 1,
           }}
         >
@@ -237,9 +254,6 @@ export const SingleRecipe = (recipe) => {
                 key={index}
                 sx={{
                   padding: 0,
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
                 }}
               >
                 <div
@@ -250,6 +264,7 @@ export const SingleRecipe = (recipe) => {
                     textDecoration: checkedItems[index]
                       ? "line-through"
                       : "none",
+                    opacity: checkedItems[index] ? 0.25 : 1,
                     width: "100%",
                   }}
                 >
@@ -272,7 +287,15 @@ export const SingleRecipe = (recipe) => {
           </List>
         </Box>
         <div>
-          <h2>Instructions</h2>
+          <Typography
+            variant="h6"
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            How to make it:
+          </Typography>
 
           {typeof recipe.instructions === "string" ? (
             <p>{recipe.instructions}</p>

@@ -262,7 +262,14 @@ export const ProfilePage = () => {
                 setFollowersOpen(false);
               }}
             >
-              <Link to={`/profile/${follower.username}`}>
+              <Link
+                to={`/profile/${follower.username}`}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  cursor: "pointer",
+                }}
+              >
                 {follower.username}
               </Link>
             </Typography>
@@ -278,7 +285,6 @@ export const ProfilePage = () => {
             justifyContent: "center",
             gap: 1,
             padding: 2,
-            marginBottom: 1,
           }}
         >
           {!following ? <CircularProgress /> : null}
@@ -300,6 +306,7 @@ export const ProfilePage = () => {
                 }}
               >
                 {follower.username}
+                {}
               </Link>
             </Typography>
           ))}
@@ -316,7 +323,7 @@ export const ProfilePage = () => {
             justifyContent: "center",
           }}
         >
-          {/* {isloading && <Skeleton variant="rectangular" width={300} height={300} />} */}
+          {userRecipes.length === 0 && "No recipes yet"}
           {userRecipes.map((recipe) => (
             <Grid item key={recipe.id}>
               {<RecipeCard {...recipe} />}
