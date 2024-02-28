@@ -23,10 +23,10 @@ import Dialog from "@mui/material/Dialog";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 export const RecipeCard = (recipe) => {
-  const [isloading, setIsLoading] = useState(false);
   const currentUser = useContext(UserContext);
   const [open, setOpen] = useState(false);
   const [showLikedAlert, setShowLikedAlert] = useState(false);
+  const [authorUsername, setAuthorUsername] = useState("");
 
   const calcCookTime = (cookTime) => {
     const hours = Math.floor(cookTime / 60);
@@ -44,29 +44,21 @@ export const RecipeCard = (recipe) => {
     setOpen(false);
   };
 
-  const getUsernameFromUid = (uid) => {
-    setIsLoading(true);
-    getDoc(doc(db, "users", uid)).then((docSnap) => {
-      if (docSnap.exists()) {
-        const username = docSnap.data().username;
-        localStorage.setItem(`authorUsername_${uid}`, username);
-      }
-    });
-    setIsLoading(false);
-  };
-
   const handleOpen = () => {
     setOpen(true);
   };
 
   useEffect(() => {
-    const cachedUsername = localStorage.getItem(
-      `authorUsername_${recipe.authorUid}`
-    );
-    if (cachedUsername) {
-    } else {
-      getUsernameFromUid(recipe.authorUid);
-    }
+    const getUsernameFromUid = async (uid) => {
+      await getDoc(doc(db, "users", uid)).then((docSnap) => {
+        if (docSnap.exists()) {
+          const username = docSnap.data().username;
+          localStorage.setItem(`authorUsername_${uid}`, username);
+          setAuthorUsername(username);
+        }
+      });
+    };
+    getUsernameFromUid(recipe.authorUid);
   }, [recipe.authorUid]);
 
   const handleLikeRecipe = async () => {
@@ -98,8 +90,15 @@ export const RecipeCard = (recipe) => {
       console.error("Error deleting recipe:", error);
     }
   };
-  return isloading ? (
-    <Skeleton variant="rectangular" width={225} height={285} />
+  return !authorUsername ? (
+    <Skeleton
+      variant="rounded"
+      width={225}
+      height={285}
+      sx={{
+        margin: "1rem",
+      }}
+    />
   ) : (
     <>
       <Snackbar open={showLikedAlert} autoHideDuration={3000}>
@@ -112,7 +111,7 @@ export const RecipeCard = (recipe) => {
         onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
         sx={{
           width: 225,
-          height: 280,
+          height: 270,
           margin: "1rem",
           transition: "transform 0.5s",
           boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
@@ -132,7 +131,11 @@ export const RecipeCard = (recipe) => {
             }}
           />
 
-          <CardContent>
+          <CardContent
+            style={{
+              padding: "14px",
+            }}
+          >
             <Typography
               variant="body2"
               textOverflow={{
@@ -155,26 +158,28 @@ export const RecipeCard = (recipe) => {
               <Box
                 sx={{
                   display: "flex",
+                  flexDirection: "row",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: "bold",
+                  gap: 0.1,
                 }}
               >
                 <AccessTimeIcon fontSize="1" />
                 {calcCookTime(recipe.cookTime)}
-                &nbsp;| {recipe.servings || 1}{" "}
+                &nbsp;|&nbsp;
+                {recipe.servings || 1}{" "}
                 {recipe.servings > 1 ? "servings" : "serving"}
               </Box>
             </Typography>
             <Typography
               variant="body2"
+              color="text.secondary"
               textOverflow={{
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
               }}
             >
-              {recipe.description}
+              By: {authorUsername || "Loading..."}
             </Typography>
           </CardContent>
         </Link>

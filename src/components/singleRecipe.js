@@ -125,15 +125,19 @@ export const SingleRecipe = (recipe) => {
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "flex-end",
+            alignContent: "flex-end",
+            //align everything at the bottom
+
             gap: 0.5,
           }}
         >
           <Typography
             variant="h6"
             sx={{
-              display: "inline",
-              verticalAlign: "middle",
+              margin: 0,
+              padding: 0,
+              lineHeight: 1.1,
             }}
           >
             {recipe.name}

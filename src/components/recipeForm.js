@@ -107,12 +107,16 @@ export const RecipeForm = () => {
     setIngredientAMT("1");
     setSelectedUnit("single");
     setCurrIngredient("");
+    //focus on the ingredient input
+    document.getElementById("ingredient").focus();
   };
 
   const handleAddInstruction = () => {
     if (!currInstruction) return;
     setInstructionsArr((prev) => [...prev, currInstruction]);
     setCurrInstruction("");
+    //focus on the instruction input
+    document.getElementById("instruction").focus();
   };
 
   const VisuallyHiddenInput = styled("input")({
@@ -162,17 +166,7 @@ export const RecipeForm = () => {
   return (
     <>
       {recipeUploaded && <Navigate to={`/recipes/${recipeUploaded}`} />}
-      <Typography
-        variant="h4"
-        component="div"
-        sx={{
-          background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}
-      >
-        Create Recipe
-      </Typography>
+
       <Container
         component="main"
         maxWidth="xs"
@@ -182,8 +176,20 @@ export const RecipeForm = () => {
           flexDirection: "column",
           justifyContent: "center",
           gap: 3,
+          alignItems: "center",
         }}
       >
+        <Typography
+          variant="h4"
+          component="div"
+          sx={{
+            background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Create New Recipe
+        </Typography>
         <form onSubmit={onSubmitRecipe}>
           <Box
             component="form"
@@ -275,6 +281,7 @@ export const RecipeForm = () => {
               </Select>
               <TextField
                 type="text"
+                id="ingredient"
                 fullWidth
                 variant="outlined"
                 label="Ingredient"
@@ -334,6 +341,7 @@ export const RecipeForm = () => {
                 type="text"
                 variant="outlined"
                 label="Instruction"
+                id="instruction"
                 placeholder="ex. Add sauce..."
                 value={currInstruction}
                 onChange={(e) => setCurrInstruction(e.target.value)}
@@ -438,7 +446,7 @@ export const RecipeForm = () => {
                 min={5}
                 max={150}
               />
-              <Typography sx={{ width: "50%" }} id="non-linear-slider">
+              <Typography sx={{ width: "30%" }} id="non-linear-slider">
                 {calcCookTime(cookTime)}
               </Typography>
             </Box>
@@ -455,7 +463,7 @@ export const RecipeForm = () => {
                   !description
                 }
               >
-                Create Recipe!
+                Create New Recipe!
               </Button>
             )}
           </Box>

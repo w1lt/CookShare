@@ -21,7 +21,19 @@ import {
   Typography,
 } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
-import { GetUsername } from "../components/getUsername";
+
+const getUserInfoFromIds = async (userIds) => {
+  const usernames = [];
+  for (const userId of userIds) {
+    const docRef = doc(db, "users", userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      usernames.push(userData);
+    }
+  }
+  return usernames;
+};
 
 export const ProfilePage = () => {
   const navigate = useNavigate();
@@ -32,22 +44,41 @@ export const ProfilePage = () => {
   const [followersOpen, setFollowersOpen] = useState();
   const [followingOpen, setFollowingOpen] = useState();
   const [authduserdata, setAuthduserdata] = useState({});
-  const [isloading, setIsLoading] = useState(true);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
 
   let { username } = useParams();
 
   document.title = `CS | ${username}`;
 
   useEffect(() => {
+    const fetchFollowers = async () => {
+      if (userInfo) {
+        const followersUsernames = await getUserInfoFromIds(
+          userInfo.followers || []
+        );
+        setFollowers(followersUsernames);
+      }
+    };
+
+    const fetchFollowing = async () => {
+      if (userInfo) {
+        const followingUsernames = await getUserInfoFromIds(
+          userInfo.following || []
+        );
+        setFollowing(followingUsernames);
+      }
+    };
     if (window.location.pathname.includes("followers")) {
       setFollowersOpen(true);
     } else if (window.location.pathname.includes("following")) {
       setFollowingOpen(true);
     }
-  }, []);
+    fetchFollowing();
+    fetchFollowers();
+  }, [userInfo]);
 
   useEffect(() => {
-    setIsLoading(true);
     const q = query(collection(db, "users"), where("username", "==", username));
     const unsubscribeUserInfo = onSnapshot(q, (snapshot) => {
       snapshot.forEach((doc) => {
@@ -67,9 +98,7 @@ export const ProfilePage = () => {
           id: doc.id,
         }));
         setUserRecipes(updatedRecipeList);
-        console.log("Updated recipe list:");
       });
-      setIsLoading(false);
       return () => {
         unsubscribeRecipeList();
         unsubscribeUserInfo();
@@ -109,7 +138,17 @@ export const ProfilePage = () => {
 
   return (
     <>
-      <Container component="main" maxWidth="xs">
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          py: 4,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -214,7 +253,7 @@ export const ProfilePage = () => {
             marginBottom: 1,
           }}
         >
-          {userInfo.followers?.map((follower) => (
+          {followers?.map((follower) => (
             <Typography
               variant="p"
               component="h4"
@@ -223,7 +262,9 @@ export const ProfilePage = () => {
                 setFollowersOpen(false);
               }}
             >
-              <GetUsername userId={follower} authduserdata={authduserdata} />
+              <Link to={`/profile/${follower.username}`}>
+                {follower.username}
+              </Link>
             </Typography>
           ))}
         </Box>
@@ -240,8 +281,8 @@ export const ProfilePage = () => {
             marginBottom: 1,
           }}
         >
-          {!userInfo.following ? <CircularProgress /> : null}
-          {userInfo.following?.map((follower) => (
+          {!following ? <CircularProgress /> : null}
+          {following?.map((follower) => (
             <Typography
               variant="p"
               component="h4"
@@ -250,7 +291,16 @@ export const ProfilePage = () => {
                 setFollowingOpen(false);
               }}
             >
-              <GetUsername userId={follower} currentUser={currentUser} />
+              <Link
+                to={`/profile/${follower.username}`}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  cursor: "pointer",
+                }}
+              >
+                {follower.username}
+              </Link>
             </Typography>
           ))}
         </Box>
@@ -266,7 +316,7 @@ export const ProfilePage = () => {
             justifyContent: "center",
           }}
         >
-          {isloading ? <CircularProgress /> : null}
+          {/* {isloading && <Skeleton variant="rectangular" width={300} height={300} />} */}
           {userRecipes.map((recipe) => (
             <Grid item key={recipe.id}>
               {<RecipeCard {...recipe} />}

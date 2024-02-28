@@ -7,7 +7,6 @@ import {
   CircularProgress,
   Container,
   Grid,
-  Skeleton,
   Typography,
 } from "@mui/material";
 
@@ -39,19 +38,18 @@ export const Recipes = ({ title }) => {
 
   return (
     <>
-      <Typography
-        variant="h4"
-        component="div"
-        sx={{
-          background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}
-      >
-        {title}
-      </Typography>
-      {loading && <CircularProgress />}
       <Container justifyContent="center">
+        <Typography
+          variant="h4"
+          component="div"
+          sx={{
+            background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          {title}
+        </Typography>
         <Box
           sx={{
             display: "flex",
@@ -62,10 +60,10 @@ export const Recipes = ({ title }) => {
         >
           {recipeList.map((recipe) => (
             <Grid item key={recipe.id}>
-              {!loading ? (
-                <RecipeCard {...recipe} />
-              ) : (
-                <Skeleton variant="rectangular" />
+              {<RecipeCard {...recipe} /> || (
+                <CircularProgress
+                  sx={{ width: "100%", height: "100%", borderRadius: "10%" }}
+                />
               )}
             </Grid>
           ))}

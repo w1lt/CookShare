@@ -6,7 +6,14 @@ import { checkValidUsername } from "./username";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { sendEmailVerification } from "firebase/auth";
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { signOut } from "firebase/auth";
 import DarkModeToggle from "./darkModeToggle";
 
@@ -70,17 +77,6 @@ export const Settings = () => {
 
   return (
     <>
-      <Typography
-        variant="h4"
-        component="div"
-        sx={{
-          background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}
-      >
-        {currentUser.displayName || "loading"}
-      </Typography>
       <Container
         component="main"
         maxWidth="xs"
@@ -90,10 +86,20 @@ export const Settings = () => {
           flexDirection: "column",
           justifyContent: "center",
           gap: 3,
+          alignItems: "center",
         }}
       >
-        <Typography variant="p" component="h4">
-          ({currentUser.email})
+        <Typography
+          variant="h4"
+          component="div"
+          sx={{
+            background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          {currentUser.displayName || <CircularProgress />}
+          {" | "}({currentUser.email || <CircularProgress />})
         </Typography>
         <Box
           component="form"
@@ -103,6 +109,7 @@ export const Settings = () => {
             display: "flex",
             flexDirection: "column",
             gap: 1.5,
+            width: "100%",
           }}
         >
           <Button variant="outlined" onClick={verifyEmail}>

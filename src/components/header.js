@@ -49,20 +49,35 @@ export const Header = () => {
   } else if (currentUser) {
     return (
       <>
-        <Container sx={{ paddingTop: 2 }}>
-          <Link to="/home" style={{ textDecoration: "none", color: "inherit" }}>
-            <Typography
-              variant="h3"
-              component="div"
-              sx={{
-                background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
+        <Container sx={{ paddingTop: 2, alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              gap: 1,
+              paddingBottom: 1,
+            }}
+          >
+            <Link
+              to="/home"
+              style={{ textDecoration: "none", color: "inherit" }}
             >
-              CookShare
-            </Typography>
-          </Link>
+              <Typography
+                variant="h3"
+                component="div"
+                sx={{
+                  background:
+                    "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                CookShare
+              </Typography>
+            </Link>
+          </Box>
+
           <Box
             sx={{
               display: "flex",

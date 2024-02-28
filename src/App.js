@@ -59,7 +59,7 @@ function App() {
   });
 
   return (
-    <div style={{ textAlign: "center" }}>
+    <>
       <ThemeProvider theme={THEME}>
         <UserContext.Provider value={currentUser}>
           <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
@@ -91,7 +91,7 @@ function App() {
           </ThemeContext.Provider>
         </UserContext.Provider>
       </ThemeProvider>
-    </div>
+    </>
   );
 }
 
