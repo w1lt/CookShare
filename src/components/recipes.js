@@ -12,11 +12,9 @@ import {
 
 export const Recipes = ({ title }) => {
   const [recipeList, setRecipeList] = useState([]);
-  const [loading, setLoading] = useState(true);
   document.title = "CS | Home";
 
   useEffect(() => {
-    setLoading(true);
     const cachedRecipeList = localStorage.getItem("recipeList");
     if (cachedRecipeList) {
       setRecipeList(JSON.parse(cachedRecipeList));
@@ -30,7 +28,6 @@ export const Recipes = ({ title }) => {
       });
       setRecipeList(recipes);
       localStorage.setItem("recipeList", JSON.stringify(recipes));
-      setLoading(false);
     });
 
     return () => unsubscribe();

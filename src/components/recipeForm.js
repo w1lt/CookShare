@@ -79,7 +79,7 @@ export const RecipeForm = () => {
     const compress = new Compress();
     compress
       .compress([file], {
-        size: 0.5, // the max size in MB, defaults to 2MB
+        size: 0.1, // the max size in MB, defaults to 2MB
         quality: 0.5, // the quality of the image, max is 1,
         maxWidth: 1920 / 2, // the max width of the output image, defaults to 1920px
         maxHeight: 1920 / 2, // the max height of the output image, defaults to 1920px
@@ -209,6 +209,7 @@ export const RecipeForm = () => {
               }}
             >
               <TextField
+                autoFocus
                 type="text"
                 placeholder="ex. Spaghetti Carbonara"
                 value={recipeName}
@@ -220,14 +221,19 @@ export const RecipeForm = () => {
               <Button
                 component="label"
                 variant="outlined"
-                color={recipeImage ? "error" : "inherit"}
-                tabIndex={-1}
+                color={
+                  recipeImage
+                    ? "error" //grey
+                    : "primary"
+                }
                 sx={{ whiteSpace: "nowrap" }}
                 startIcon={recipeImage ? null : <AddAPhotoIcon />}
+                tabIndex="-1"
               >
                 {recipeImage ? "Remove Img" : "Add "}
                 {!recipeImage ? (
                   <VisuallyHiddenInput
+                    tabIndex="-1"
                     type="file"
                     onChange={(e) => handleImageUpload(e)}
                   />
@@ -245,6 +251,7 @@ export const RecipeForm = () => {
               placeholder="ex. A delicious twist..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              tabIndex="1"
             />
             <Box
               sx={{
@@ -256,7 +263,11 @@ export const RecipeForm = () => {
               <TextField
                 id="quantity"
                 onFocus={(e) => setIngredientAMT("")}
-                inputProps={{ inputMode: "numeric" }}
+                onBlur={
+                  ingredientAMT === "" ? () => setIngredientAMT("1") : null
+                }
+                inputProps={{ inputMode: "numeric", tabIndex: "-1" }}
+                tabIndex="-1"
                 variant="outlined"
                 label="Qty"
                 sx={{ width: "20%" }}
@@ -269,6 +280,7 @@ export const RecipeForm = () => {
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={selectedUnit}
+                inputProps={{ tabIndex: "-1" }}
                 native
                 onChange={(e) => setSelectedUnit(e.target.value)}
                 sx={{ width: "35%" }}
@@ -280,6 +292,7 @@ export const RecipeForm = () => {
                 ))}
               </Select>
               <TextField
+                tabIndex="2"
                 type="text"
                 id="ingredient"
                 fullWidth
@@ -301,7 +314,7 @@ export const RecipeForm = () => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton>
+                      <IconButton tabIndex={"-1"}>
                         <AddIcon onClick={handleAddIngredient} />
                       </IconButton>
                     </InputAdornment>
@@ -341,6 +354,7 @@ export const RecipeForm = () => {
                 type="text"
                 variant="outlined"
                 label="Instruction"
+                inputProps={{ tabIndex: "0" }}
                 id="instruction"
                 placeholder="ex. Add sauce..."
                 value={currInstruction}
@@ -358,7 +372,7 @@ export const RecipeForm = () => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton>
+                      <IconButton tabIndex={"-1"}>
                         <AddIcon onClick={handleAddInstruction} />
                       </IconButton>
                     </InputAdornment>

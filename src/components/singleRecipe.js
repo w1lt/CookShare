@@ -264,7 +264,7 @@ export const SingleRecipe = (recipe) => {
                     textDecoration: checkedItems[index]
                       ? "line-through"
                       : "none",
-                    opacity: checkedItems[index] ? 0.25 : 1,
+                    opacity: checkedItems[index] ? 0.5 : 1,
                     width: "100%",
                   }}
                 >

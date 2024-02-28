@@ -1,9 +1,9 @@
-import { Navigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { db } from "../config/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { SingleRecipe } from "../components/singleRecipe";
-import { Skeleton, Typography, typographyClasses } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 
 export const RecipePost = () => {
   let { id } = useParams();
@@ -34,7 +34,9 @@ export const RecipePost = () => {
       {recipe && Object.keys(recipe).length > 0 ? (
         <SingleRecipe {...recipe} />
       ) : (
-        "Loading Recipe..."
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>
       )}
     </div>
   );

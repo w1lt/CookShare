@@ -27,6 +27,7 @@ export const RecipeCard = (recipe) => {
   const [showLikedAlert, setShowLikedAlert] = useState(false);
   const [authorUsername, setAuthorUsername] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
+  const [fadeIn, setFadeIn] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
@@ -53,6 +54,7 @@ export const RecipeCard = (recipe) => {
   };
 
   useEffect(() => {
+    setFadeIn(true);
     const getUsernameFromUid = async (uid) => {
       await getDoc(doc(db, "users", uid)).then((docSnap) => {
         if (docSnap.exists()) {
@@ -117,8 +119,8 @@ export const RecipeCard = (recipe) => {
           width: 225,
           height: 270,
           margin: "1rem",
-          transition: "transform 0.5s",
-          boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
+          transition: "transform 0.5s ",
+          opacity: fadeIn ? 1 : 0,
         }}
       >
         <Link
