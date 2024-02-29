@@ -5,6 +5,7 @@ import {
   Alert,
   Box,
   Button,
+  Card,
   Checkbox,
   Container,
   List,
@@ -20,6 +21,7 @@ import { UserContext } from "../App";
 import { MoreVert } from "@mui/icons-material";
 import { BASE_DOMAIN } from "../static/vars";
 import { Link } from "react-router-dom";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 export const SingleRecipe = (recipe) => {
   const currentUser = useContext(UserContext);
@@ -81,8 +83,12 @@ export const SingleRecipe = (recipe) => {
   const calcCookTime = (cookTime) => {
     const hours = Math.floor(cookTime / 60);
     const minutes = cookTime % 60;
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
+    if (hours >= 1) {
+      if (minutes === 0) {
+        return `${hours}h`;
+      } else {
+        return `${hours}h ${minutes}m`;
+      }
     } else {
       return `${minutes}m`;
     }
@@ -203,7 +209,7 @@ export const SingleRecipe = (recipe) => {
             >
               <MenuItem onClick={copyRecipeLink}>Copy Link</MenuItem>
               {currentUser.uid === recipe.authorUid && (
-                <MenuItem onClick={handleDeleteRecipe}>Delete</MenuItem>
+                <MenuItem onClick={handleDeleteRecipe}>Delete Recipe</MenuItem>
               )}
             </Menu>
           </Box>
@@ -219,17 +225,62 @@ export const SingleRecipe = (recipe) => {
             borderRadius: "10px",
           }}
         />
-        <Typography
-          variant="h8"
+
+        <Box
           sx={{
-            fontStyle: "italic",
             display: "flex",
+            flexDirection: "row",
+            padding: 1,
+            gap: 2,
             justifyContent: "center",
-            paddingTop: 1,
+            alignItems: "center",
           }}
         >
-          "{recipe.description ? recipe.description : ""}"
-        </Typography>
+          <Card
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 1.5,
+            }}
+            s
+          >
+            <Typography>{recipe.ingredients.length} Ingred.</Typography>
+          </Card>
+          <Card
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 1.5,
+            }}
+          >
+            <Typography
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 0.1,
+              }}
+            >
+              <AccessTimeIcon fontSize="1" />
+              {calcCookTime(recipe.cookTime)}
+            </Typography>
+          </Card>
+          <Card
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 1.5,
+            }}
+          >
+            <Typography>{recipe.servings || 1} Serving(s)</Typography>
+          </Card>
+        </Box>
 
         <Typography
           variant="h6"
@@ -253,7 +304,7 @@ export const SingleRecipe = (recipe) => {
               <ListItem
                 key={index}
                 sx={{
-                  padding: 0,
+                  padding: 1,
                 }}
               >
                 <div
@@ -300,37 +351,22 @@ export const SingleRecipe = (recipe) => {
           {typeof recipe.instructions === "string" ? (
             <p>{recipe.instructions}</p>
           ) : (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "center",
-                gap: 1,
-              }}
-            >
+            <Box>
               <List>
                 {recipe.instructions.map((instruction, index) => (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      padding: 0,
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
+                  <ListItem key={index}>
                     <div
                       style={{
                         display: "flex",
                         flexDirection: "row",
                         alignItems: "center",
-
                         width: "100%",
                       }}
                     >
                       {index + 1}
                       {". "}
-                      {instruction}
+                      {instruction.charAt(0).toUpperCase() +
+                        instruction.slice(1)}
                     </div>
                   </ListItem>
                 ))}

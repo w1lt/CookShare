@@ -22,7 +22,7 @@ import styled from "@emotion/styled";
 import Compress from "compress.js";
 import { Navigate } from "react-router-dom";
 import InputAdornment from "@mui/material/InputAdornment";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
 
 export const RecipeForm = () => {
@@ -33,7 +33,7 @@ export const RecipeForm = () => {
   const [instructionsArr, setInstructionsArr] = useState([]);
   const [currInstruction, setCurrInstruction] = useState("");
   const [description, setDescription] = useState("");
-  const [cookTime, setCookTime] = useState(30);
+  const [cookTime, setCookTime] = useState(70);
   const [ingredientAMT, setIngredientAMT] = useState("1");
   const [selectedUnit, setSelectedUnit] = useState("single");
   const [recipeImage, setRecipeImage] = useState(null);
@@ -63,13 +63,16 @@ export const RecipeForm = () => {
   ];
 
   const calcCookTime = (cookTime) => {
-    // Convert cookTime to minutes and hours. if less than an hour just show minutes
     const hours = Math.floor(cookTime / 60);
     const minutes = cookTime % 60;
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
+    if (hours >= 1) {
+      if (minutes === 0) {
+        return `Takes ${hours}h`;
+      } else {
+        return `Takes ${hours}h ${minutes}m`;
+      }
     } else {
-      return `${minutes}m`;
+      return `Takes ${minutes}m`;
     }
   };
 
@@ -105,17 +108,15 @@ export const RecipeForm = () => {
       },
     ]);
     setIngredientAMT("1");
-    setSelectedUnit("single");
     setCurrIngredient("");
-    //focus on the ingredient input
     document.getElementById("ingredient").focus();
   };
 
   const handleAddInstruction = () => {
     if (!currInstruction) return;
+    if (instructionsArr.includes(currInstruction)) return;
     setInstructionsArr((prev) => [...prev, currInstruction]);
     setCurrInstruction("");
-    //focus on the instruction input
     document.getElementById("instruction").focus();
   };
 
@@ -209,6 +210,7 @@ export const RecipeForm = () => {
               }}
             >
               <TextField
+                required
                 autoFocus
                 type="text"
                 placeholder="ex. Spaghetti Carbonara"
@@ -218,29 +220,6 @@ export const RecipeForm = () => {
                 onChange={(e) => setRecipeName(e.target.value)}
                 variant="outlined"
               />
-              <Button
-                component="label"
-                variant="outlined"
-                color={
-                  recipeImage
-                    ? "error" //grey
-                    : "primary"
-                }
-                sx={{ whiteSpace: "nowrap" }}
-                startIcon={recipeImage ? null : <AddAPhotoIcon />}
-                tabIndex="-1"
-              >
-                {recipeImage ? "Remove Img" : "Add "}
-                {!recipeImage ? (
-                  <VisuallyHiddenInput
-                    tabIndex="-1"
-                    type="file"
-                    onChange={(e) => handleImageUpload(e)}
-                  />
-                ) : (
-                  <VisuallyHiddenInput onClick={(e) => setRecipeImage(null)} />
-                )}
-              </Button>
             </Box>
 
             <TextField
@@ -292,6 +271,7 @@ export const RecipeForm = () => {
                 ))}
               </Select>
               <TextField
+                required={!currIngredient && ingredientsArr.length === 0}
                 tabIndex="2"
                 type="text"
                 id="ingredient"
@@ -322,35 +302,48 @@ export const RecipeForm = () => {
                 }}
               />
             </Box>
-
-            <Grid container spacing={0.5}>
-              {ingredientsArr.map((ingredient, index) => (
-                <Grid item key={index}>
-                  <Button
-                    style={{ textTransform: "none", color: "inherit" }}
-                    textTransform="none"
-                    variant="outlined"
-                    onClick={() =>
-                      setIngredientsArr((prev) =>
-                        prev.filter((item) => item !== ingredient)
-                      )
-                    }
-                  >
-                    {ingredient.amount} {ingredient.unit} {ingredient.name}{" "}
-                    <DeleteOutlineIcon
-                      style={{ marginLeft: "auto" }}
-                      onClick={() =>
-                        setIngredientsArr((prev) =>
-                          prev.filter((item) => item !== ingredient)
-                        )
-                      }
-                    />
-                  </Button>
-                </Grid>
-              ))}
-            </Grid>
+            {ingredientsArr.length > 0 && (
+              <Grid container spacing={0.5}>
+                {ingredientsArr.map((ingredient, index) => (
+                  <Grid item key={index}>
+                    <Button
+                      tabIndex={"-1"}
+                      style={{
+                        textTransform: "none",
+                        color: "inherit",
+                        paddingLeft: "0.5rem",
+                        paddingRight: "0.5rem",
+                      }}
+                      textTransform="none"
+                      variant="outlined"
+                    >
+                      {ingredient.amount} {ingredient.unit} {ingredient.name}{" "}
+                      <IconButton
+                        sx={{
+                          width: "1.5rem",
+                          height: "1.5rem",
+                        }}
+                      >
+                        <ClearIcon
+                          sx={{
+                            width: "1rem",
+                            height: "1rem",
+                          }}
+                          onClick={() =>
+                            setIngredientsArr((prev) =>
+                              prev.filter((item) => item !== ingredient)
+                            )
+                          }
+                        />
+                      </IconButton>
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
             <Box sx={{ display: "flex", flexDirection: "row", gap: 0.5 }}>
               <TextField
+                required={!currInstruction && instructionsArr.length === 0}
                 type="text"
                 variant="outlined"
                 label="Instruction"
@@ -380,41 +373,52 @@ export const RecipeForm = () => {
                 }}
               />
             </Box>
-            <Grid
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 0.5,
-                justifyContent: "left",
-              }}
-            >
-              {instructionsArr.map((instruction, index) => (
-                <Button
-                  key={index}
-                  sx={{
-                    justifyContent: "left",
-                    textAlign: "left",
-                    marginBottom: "0.25rem",
-                    alignSelf: "left",
-                    color: "inherit",
-                  }}
-                  style={{ textTransform: "none" }}
-                  textTransform="none"
-                  variant="outlined"
-                >
-                  {index + 1}. {instruction}
-                  <DeleteOutlineIcon
-                    style={{ marginLeft: "auto" }}
-                    onClick={() =>
-                      setInstructionsArr((prev) =>
-                        prev.filter((item) => item !== instruction)
-                      )
-                    }
-                  />
-                </Button>
-              ))}
-            </Grid>
+            {instructionsArr.length > 0 && (
+              <Grid
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 0.5,
+                  justifyContent: "left",
+                }}
+              >
+                {instructionsArr.map((instruction, index) => (
+                  <Button
+                    tabIndex={"-1"}
+                    key={index}
+                    sx={{
+                      justifyContent: "space-between",
+                      textAlign: "left",
+                      marginBottom: "0.25rem",
+                      alignSelf: "left",
+                      color: "inherit",
+                    }}
+                    style={{ textTransform: "none" }}
+                    textTransform="none"
+                    variant="outlined"
+                  >
+                    {index + 1}. {instruction}
+                    <IconButton
+                      sx={{
+                        width: "1.5rem",
+                        height: "1.5rem",
+                      }}
+                    >
+                      <ClearIcon
+                        style={{ marginLeft: "auto" }}
+                        onClick={() =>
+                          setInstructionsArr((prev) =>
+                            prev.filter((item) => item !== instruction)
+                          )
+                        }
+                      />
+                    </IconButton>
+                  </Button>
+                ))}
+              </Grid>
+            )}
             <TextField
+              required
               id="quantity"
               inputProps={{ inputMode: "numeric" }}
               variant="outlined"
@@ -430,36 +434,41 @@ export const RecipeForm = () => {
               value={servings}
               onChange={(e) => setServings(parseInt(e.target.value) || "")}
             />
+            <Button
+              component="label"
+              variant="contained"
+              sx={{
+                padding: "1rem",
+              }}
+              color={recipeImage ? "error" : "inherit"}
+              startIcon={recipeImage ? null : <AddAPhotoIcon />}
+              tabIndex="-1"
+            >
+              {recipeImage ? "Remove Img" : "Add image"}
+              {!recipeImage ? (
+                <VisuallyHiddenInput
+                  tabIndex="-1"
+                  type="file"
+                  onChange={(e) => handleImageUpload(e)}
+                />
+              ) : (
+                <VisuallyHiddenInput onClick={(e) => setRecipeImage(null)} />
+              )}
+            </Button>
 
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "row",
-                gap: 1,
                 justifyContent: "space-between",
                 alignItems: "center",
+                gap: 2,
+                paddingLeft: "0.5rem",
+                paddingRight: "0.5rem",
               }}
             >
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "row",
-                  gap: 1,
-                  alignItems: "center",
-                }}
-              >
-                <Icon>
-                  <AccessTimeIcon />
-                </Icon>
-                <Slider
-                  onChange={(e, value) => setCookTime(value)}
-                  value={cookTime}
-                  defaultValue={30}
-                  valueLabelDisplay="auto"
-                  shiftStep={30}
-                  step={5}
-                  marks
+              <Icon>
+                <AccessTimeIcon
                   color={
                     cookTime <= 60
                       ? "success"
@@ -467,33 +476,45 @@ export const RecipeForm = () => {
                       ? "warning"
                       : "error"
                   }
-                  min={5}
-                  max={150}
                 />
-              </Box>
-              <Typography
-                sx={{ width: "20%" }}
-                id="non-linear-slider"
-                style={{
-                  justifyContent: "right",
-                  textAlign: "right",
-                  alignSelf: "right",
-                }}
-              >
-                {calcCookTime(cookTime)}
-              </Typography>
+              </Icon>
+              <Slider
+                onChange={(e, value) => setCookTime(value)}
+                value={cookTime}
+                defaultValue={30}
+                valueLabelDisplay="auto"
+                valueLabelFormat={calcCookTime}
+                shiftStep={30}
+                step={5}
+                marks
+                color={
+                  cookTime <= 60
+                    ? "success"
+                    : cookTime > 60 && cookTime <= 120
+                    ? "warning"
+                    : "error"
+                }
+                min={5}
+                max={150}
+              />
             </Box>
             {isloading ? (
               <LinearProgress />
             ) : (
               <Button
-                variant="outlined"
+                sx={{
+                  padding: "1rem",
+                  marginTop: "1rem",
+                }}
+                variant="contained"
                 onClick={(e) => onSubmitRecipe(e)}
+                color="success"
                 disabled={
                   !recipeName ||
-                  !ingredientsArr ||
-                  !instructionsArr ||
-                  !description
+                  !ingredientsArr.length === 0 ||
+                  instructionsArr.length === 0 ||
+                  !servings ||
+                  !cookTime
                 }
               >
                 Create New Recipe!

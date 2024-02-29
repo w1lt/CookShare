@@ -1,26 +1,27 @@
-import { Link, useParams, useNavigate } from "react-router-dom";
-import {
-  query,
-  collection,
-  where,
-  updateDoc,
-  doc,
-  onSnapshot,
-  getDoc,
-} from "firebase/firestore";
-import { db } from "../config/firebase";
-import { RecipeCard } from "../components/recipeCard";
-import { UserContext } from "../App";
-import { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
   CircularProgress,
   Container,
+  Divider,
   Grid,
   Typography,
 } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { UserContext } from "../App";
+import { RecipeCard } from "../components/recipeCard";
+import { db } from "../config/firebase";
 
 const getUserInfoFromIds = async (userIds) => {
   const usernames = [];
@@ -154,12 +155,13 @@ export const ProfilePage = () => {
             display: "flex",
             flexDirection: "row",
             justifyContent: "center",
+            alignItems: "center",
             gap: 1,
           }}
         >
           <Typography
-            variant="h4"
-            component="h4"
+            variant="h3"
+            component="h3"
             sx={{
               background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
               WebkitBackgroundClip: "text",
@@ -183,19 +185,24 @@ export const ProfilePage = () => {
             </Button>
           )}
         </Box>
-
+        <Divider
+          sx={{
+            width: "100%",
+            marginBottom: 1,
+          }}
+        />
         <Box
           sx={{
             display: "flex",
             flexDirection: "row",
             justifyContent: "center",
             gap: 1,
-            padding: 2,
             marginBottom: 1,
           }}
         >
           <Typography variant="p" component="h4">
-            {userRecipes?.length} Recipes
+            {userRecipes?.length}{" "}
+            {userRecipes?.length === 1 ? "Recipe" : "Recipes"}
           </Typography>
           <Typography variant="p" component="h4">
             <Link
@@ -240,6 +247,11 @@ export const ProfilePage = () => {
             </Link>
           </Typography>
         </Box>
+        <Divider
+          sx={{
+            width: "100%",
+          }}
+        />
       </Container>
 
       <Dialog open={followersOpen} onClose={() => handleCloseDialogs()}>

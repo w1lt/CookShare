@@ -1,5 +1,5 @@
 import { auth } from "../config/firebase";
-import { updateProfile } from "firebase/auth";
+import { updateProfile, verifyBeforeUpdateEmail } from "firebase/auth";
 import { useState, useContext } from "react";
 import { UserContext } from "../App";
 import { checkValidUsername } from "./username";
@@ -20,6 +20,7 @@ import DarkModeToggle from "./darkModeToggle";
 export const Settings = () => {
   const currentUser = useContext(UserContext);
   const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
 
   const signOutUser = async () => {
     try {
@@ -44,6 +45,20 @@ export const Settings = () => {
       console.error("Error deleting user:", error);
     }
   };
+
+  const handleChangeEmail = async (e) => {
+    console.log(email);
+    e.preventDefault();
+    try {
+      await verifyBeforeUpdateEmail(currentUser, email).then(() => {
+        alert("check inbox!");
+      });
+    } catch (error) {
+      alert("Error updating email:", error.message);
+    }
+    setEmail("");
+  };
+
   const addDisplayName = async (e) => {
     e.preventDefault();
     if (displayName === "") {
@@ -89,18 +104,29 @@ export const Settings = () => {
           alignItems: "center",
         }}
       >
-        <Typography
-          variant="h4"
-          component="div"
+        <Box
           sx={{
-            background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 1,
           }}
         >
-          {currentUser.displayName || <CircularProgress />}
-          {" | "}({currentUser.email || <CircularProgress />})
-        </Typography>
+          <Typography
+            variant="h4"
+            component="div"
+            sx={{
+              background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            {currentUser.displayName || <CircularProgress />}
+          </Typography>
+          <Typography variant="h5" component="div">
+            {currentUser.emailVerified ? "✅" : ""}
+          </Typography>
+        </Box>
         <Box
           component="form"
           noValidate
@@ -115,19 +141,18 @@ export const Settings = () => {
           <Button variant="outlined" onClick={verifyEmail}>
             Verify Email
           </Button>
+
           <Button variant="outlined" onClick={deleteUser}>
             Delete Account
           </Button>
-          <Button variant="outlined" onClick={signOutUser}>
-            Logout
-          </Button>
+
           <DarkModeToggle />
           <Box display={"flex"} flexDirection={"row"} gap={1}>
             <TextField
               type="text"
               fullWidth
               placeholder={currentUser.displayName || "Display Name"}
-              label="New Display Name"
+              label="New Username"
               onChange={(e) => setDisplayName(e.target.value)}
               value={displayName}
               onKeyDown={(e) => {
@@ -136,10 +161,39 @@ export const Settings = () => {
                 }
               }}
             />
-            <Button variant="outlined" onClick={addDisplayName}>
-              Update
+            <Button
+              sx={{
+                whiteSpace: "nowrap",
+                width: "60%",
+              }}
+              variant="outlined"
+              onClick={addDisplayName}
+            >
+              Update Username
             </Button>
           </Box>
+          <Box display={"flex"} flexDirection={"row"} gap={1}>
+            <TextField
+              type="text"
+              label="New Email"
+              placeholder="New Email"
+              fullWidth
+              onChange={(e) => setEmail(e.target.value)}
+            ></TextField>
+            <Button
+              onClick={handleChangeEmail}
+              sx={{
+                width: "40%",
+                whiteSpace: "nowrap",
+              }}
+              variant="outlined"
+            >
+              Update Email
+            </Button>
+          </Box>
+          <Button variant="outlined" onClick={signOutUser}>
+            Logout
+          </Button>
         </Box>
       </Container>
     </>

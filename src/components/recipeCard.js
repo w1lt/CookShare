@@ -40,8 +40,12 @@ export const RecipeCard = (recipe) => {
   const calcCookTime = (cookTime) => {
     const hours = Math.floor(cookTime / 60);
     const minutes = cookTime % 60;
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
+    if (hours >= 1) {
+      if (minutes === 0) {
+        return `${hours}h`;
+      } else {
+        return `${hours}h ${minutes}m`;
+      }
     } else {
       return `${minutes}m`;
     }
