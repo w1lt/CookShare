@@ -94,7 +94,8 @@ export const EmailSignUp = () => {
           variant="h3"
           component="div"
           sx={{
-            //animated gradient
+            alignSelf: "center",
+
             background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
@@ -210,26 +211,34 @@ export const EmailSignUp = () => {
               </Typography>
             )}
           </Grid>
-
-          <Grid item>
-            {isSignup ? "Have an account? " : "Don't have an account? "}
-            <Link
-              style={{
-                textDecoration: "none",
-                color: lightBlue[500],
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                setError(null);
-              }}
-              to={isSignup ? "/auth/login" : "/auth/signup"}
-            >
-              {isSignup ? "Log In" : "Sign Up"}
-            </Link>
-          </Grid>
         </Grid>
       </Box>
       <GoogleSignIn />
+      <Grid
+        item
+        fullWidth
+        sx={{
+          border: ".5px solid",
+          borderRadius: "5px",
+          padding: "10px",
+          alignSelf: "center",
+        }}
+      >
+        {isSignup ? "Have an account? " : "Don't have an account? "}
+        <Link
+          style={{
+            textDecoration: "none",
+            color: lightBlue[500],
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            setError(null);
+          }}
+          to={isSignup ? "/auth/login" : "/auth/signup"}
+        >
+          {isSignup ? "Log In" : "Sign Up"}
+        </Link>
+      </Grid>
     </>
   );
 };

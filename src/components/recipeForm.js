@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { auth } from "../config/firebase";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import {
+  Autocomplete,
   Box,
   Button,
   Container,
@@ -11,7 +12,6 @@ import {
   Icon,
   IconButton,
   LinearProgress,
-  Select,
   Slider,
   TextField,
   Typography,
@@ -35,7 +35,7 @@ export const RecipeForm = () => {
   const [description, setDescription] = useState("");
   const [cookTime, setCookTime] = useState(70);
   const [ingredientAMT, setIngredientAMT] = useState("1");
-  const [selectedUnit, setSelectedUnit] = useState("single");
+  const [selectedUnit, setSelectedUnit] = useState("");
   const [recipeImage, setRecipeImage] = useState(null);
   const [servings, setServings] = useState("");
   const [recipeUploaded, setRecipeUploaded] = useState(null);
@@ -219,17 +219,28 @@ export const RecipeForm = () => {
                 label="Recipe Name"
                 onChange={(e) => setRecipeName(e.target.value)}
                 variant="outlined"
+                onKeyUp={(e) => {
+                  if (e.key === "Enter") {
+                    document.getElementById("description").focus();
+                  }
+                }}
               />
             </Box>
 
             <TextField
               type="text"
+              id="description"
               variant="outlined"
               multiline
               label="Description"
               placeholder="ex. A delicious twist..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  document.getElementById("ingredient").focus();
+                }
+              }}
               tabIndex="1"
             />
             <Box
@@ -255,21 +266,21 @@ export const RecipeForm = () => {
                   setIngredientAMT(parseInt(e.target.value) || "")
                 }
               />
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={selectedUnit}
-                inputProps={{ tabIndex: "-1" }}
-                native
-                onChange={(e) => setSelectedUnit(e.target.value)}
-                sx={{ width: "35%" }}
-              >
-                {units.map((unit, index) => (
-                  <option key={index} value={unit.value}>
-                    {unit.label}
-                  </option>
-                ))}
-              </Select>
+              <Autocomplete
+                freeSolo
+                options={units}
+                onChange={(e, value) => {
+                  if (value) setSelectedUnit(value.value);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    onChange={(e) => setSelectedUnit(e.target.value)}
+                    label="Unit"
+                  />
+                )}
+              />
+
               <TextField
                 required={!currIngredient && ingredientsArr.length === 0}
                 tabIndex="2"
@@ -277,7 +288,11 @@ export const RecipeForm = () => {
                 id="ingredient"
                 fullWidth
                 variant="outlined"
-                label="Ingredient"
+                label={
+                  ingredientsArr.length === 0
+                    ? "Add First Ingredient"
+                    : "Add Ingredient " + (ingredientsArr.length + 1)
+                }
                 placeholder="ex. eggs"
                 value={currIngredient}
                 onKeyDown={(e) => {
@@ -346,16 +361,14 @@ export const RecipeForm = () => {
                 required={!currInstruction && instructionsArr.length === 0}
                 type="text"
                 variant="outlined"
-                label="Instruction"
+                label={"Create Step " + (instructionsArr.length + 1)}
                 inputProps={{ tabIndex: "0" }}
                 id="instruction"
-                placeholder="ex. Add sauce..."
+                placeholder="Instruction"
                 value={currInstruction}
                 onChange={(e) => setCurrInstruction(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    handleAddInstruction();
-                  } else if (e.key === ",") {
                     handleAddInstruction();
                   } else if (e.key === "Backspace" && !currInstruction) {
                     setInstructionsArr((prev) => prev.slice(0, -1));
@@ -383,37 +396,62 @@ export const RecipeForm = () => {
                 }}
               >
                 {instructionsArr.map((instruction, index) => (
-                  <Button
+                  <TextField
                     tabIndex={"-1"}
+                    value={instruction}
                     key={index}
                     sx={{
-                      justifyContent: "space-between",
                       textAlign: "left",
                       marginBottom: "0.25rem",
-                      alignSelf: "left",
                       color: "inherit",
                     }}
                     style={{ textTransform: "none" }}
                     textTransform="none"
                     variant="outlined"
-                  >
-                    {index + 1}. {instruction}
-                    <IconButton
-                      sx={{
-                        width: "1.5rem",
-                        height: "1.5rem",
-                      }}
-                    >
-                      <ClearIcon
-                        style={{ marginLeft: "auto" }}
-                        onClick={() =>
-                          setInstructionsArr((prev) =>
-                            prev.filter((item) => item !== instruction)
-                          )
-                        }
-                      />
-                    </IconButton>
-                  </Button>
+                    onKeyDown={(e) => {
+                      if (e.key === "Backspace" && !instruction) {
+                        setInstructionsArr((prev) =>
+                          prev.filter((item) => item !== instruction)
+                        );
+                      }
+                    }}
+                    onChange={(e) =>
+                      setInstructionsArr((prev) =>
+                        prev.map((item) =>
+                          item === instruction ? e.target.value : item
+                        )
+                      )
+                    }
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {index + 1 + ". "}
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            sx={{
+                              width: "1.5rem",
+                              height: "1.5rem",
+                            }}
+                          >
+                            <ClearIcon
+                              sx={{
+                                width: "1rem",
+                                height: "1rem",
+                              }}
+                              onClick={() =>
+                                setInstructionsArr((prev) =>
+                                  prev.filter((item) => item !== instruction)
+                                )
+                              }
+                            />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  ></TextField>
                 ))}
               </Grid>
             )}
@@ -425,11 +463,7 @@ export const RecipeForm = () => {
               label="Yield"
               placeholder="ex. 6 "
               InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end" sx={{ width: "40%" }}>
-                    Servings
-                  </InputAdornment>
-                ),
+                endAdornment: <InputAdornment>Servings</InputAdornment>,
               }}
               value={servings}
               onChange={(e) => setServings(parseInt(e.target.value) || "")}
