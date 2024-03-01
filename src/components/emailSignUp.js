@@ -17,6 +17,7 @@ import {
   LinearProgress,
   InputAdornment,
   IconButton,
+  Divider,
 } from "@mui/material";
 import { GoogleSignIn } from "./googleSignIn";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -88,6 +89,10 @@ export const EmailSignUp = () => {
           flexDirection: "column",
           justifyContent: "center",
           gap: 1,
+          padding: 3,
+          border: 1,
+          borderColor: "rgba(255, 255, 255, .3)",
+          borderRadius: 1,
         }}
       >
         <Typography
@@ -95,22 +100,15 @@ export const EmailSignUp = () => {
           component="div"
           sx={{
             alignSelf: "center",
-
             background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
+            padding: 2,
           }}
         >
           CookShare
         </Typography>
-        <Typography
-          component="p"
-          variant="p"
-          textAlign="center"
-          color="text.primary"
-        >
-          {isSignup ? "Sign Up" : "Log In"}
-        </Typography>
+
         <Box
           component="form"
           onSubmit={signIn}
@@ -123,6 +121,7 @@ export const EmailSignUp = () => {
           }}
         >
           <TextField
+            autoFocus
             fullWidth
             type="Email"
             value={email}
@@ -146,7 +145,6 @@ export const EmailSignUp = () => {
               variant="outlined"
               label="Username"
               placeholder="Username"
-              autoFocus
             />
           )}
 
@@ -176,18 +174,14 @@ export const EmailSignUp = () => {
             <LinearProgress />
           ) : (
             <Button
-              style={{ textTransform: "none" }}
+              style={{ textTransform: "none", fontWeight: "bold" }}
               variant="contained"
-              onClick={
-                password.length < 6 || !email
-                  ? () => setError("Invalid username or password")
-                  : signIn
-              }
+              onClick={password.length < 6 || !email ? null : signIn}
               type="submit"
               sx={{
-                opacity: password.length < 6 || !email ? 0.65 : 1,
+                opacity: password.length < 6 || !email ? 0.6 : 1,
                 cursor:
-                  password.length < 6 || !username ? "not-allowed" : "pointer",
+                  password.length < 6 || !email ? "not-allowed" : "pointer",
               }}
               color={error ? "error" : "primary"}
             >
@@ -212,33 +206,53 @@ export const EmailSignUp = () => {
             )}
           </Grid>
         </Grid>
-      </Box>
-      <GoogleSignIn />
-      <Grid
-        item
-        fullWidth
-        sx={{
-          border: ".5px solid",
-          borderRadius: "5px",
-          padding: "10px",
-          alignSelf: "center",
-        }}
-      >
-        {isSignup ? "Have an account? " : "Don't have an account? "}
-        <Link
-          style={{
-            textDecoration: "none",
-            color: lightBlue[500],
-            cursor: "pointer",
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 3,
+            padding: 2,
           }}
-          onClick={() => {
-            setError(null);
-          }}
-          to={isSignup ? "/auth/login" : "/auth/signup"}
         >
-          {isSignup ? "Log In" : "Sign Up"}
-        </Link>
-      </Grid>
+          <Divider
+            sx={{
+              width: "40%",
+            }}
+          />
+          OR{" "}
+          <Divider
+            sx={{
+              width: "40%",
+            }}
+          />
+        </Box>
+        <GoogleSignIn />
+        <Grid
+          item
+          fullWidth
+          sx={{
+            padding: "10px",
+            alignSelf: "center",
+          }}
+        >
+          {isSignup ? "Have an account? " : "Don't have an account? "}
+          <Link
+            style={{
+              textDecoration: "none",
+              color: lightBlue[500],
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              setError(null);
+            }}
+            to={isSignup ? "/auth/login" : "/auth/signup"}
+          >
+            {isSignup ? "Log In" : "Sign Up"}
+          </Link>
+        </Grid>
+      </Box>
     </>
   );
 };

@@ -28,7 +28,6 @@ export const GoogleSignIn = () => {
   return (
     <>
       <Button
-        variant="contained"
         color="primary"
         onClick={signInWithGoogle}
         type="submit"

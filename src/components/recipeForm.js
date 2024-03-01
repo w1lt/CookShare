@@ -269,8 +269,13 @@ export const RecipeForm = () => {
               <Autocomplete
                 freeSolo
                 options={units}
+                value={selectedUnit}
                 onChange={(e, value) => {
-                  if (value) setSelectedUnit(value.value);
+                  if (value) {
+                    setSelectedUnit(value.value);
+                  } else {
+                    setSelectedUnit("");
+                  }
                 }}
                 renderInput={(params) => (
                   <TextField
