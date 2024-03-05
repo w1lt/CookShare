@@ -16,17 +16,17 @@ import {
 } from "@mui/material";
 import { signOut } from "firebase/auth";
 import DarkModeToggle from "./darkModeToggle";
+import { useTheme } from "@emotion/react";
 
 export const Settings = () => {
+  const theme = useTheme();
   const currentUser = useContext(UserContext);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
 
   const signOutUser = async () => {
     try {
-      if (window.confirm("Are you sure you want to log out?")) {
-        await signOut(auth);
-      }
+      await signOut(auth);
     } catch (error) {
       console.error("Error signing out user:", error);
     }
@@ -102,6 +102,8 @@ export const Settings = () => {
           justifyContent: "center",
           gap: 3,
           alignItems: "center",
+          border: 1,
+          borderColor: theme.palette.divider,
         }}
       >
         <Box

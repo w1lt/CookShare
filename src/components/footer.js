@@ -1,5 +1,7 @@
-import { Container, Divider } from "@mui/material";
+import { useTheme } from "@emotion/react";
+import { Container, Divider, Typography } from "@mui/material";
 export const Footer = () => {
+  const theme = useTheme();
   return (
     <>
       <Container
@@ -9,9 +11,13 @@ export const Footer = () => {
       >
         <footer>
           <Divider />
-          <p style={{ textAlign: "center" }}>
+          <Typography
+            color={"textSecondary"}
+            style={{ textAlign: "center" }}
+            padding={2}
+          >
             &copy; {new Date().getFullYear()} CookShare
-          </p>
+          </Typography>
         </footer>
       </Container>
     </>

@@ -24,8 +24,10 @@ import { Navigate } from "react-router-dom";
 import InputAdornment from "@mui/material/InputAdornment";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
+import { useTheme } from "@emotion/react";
 
 export const RecipeForm = () => {
+  const theme = useTheme();
   const [isloading, setIsLoading] = useState(false);
   const [recipeName, setRecipeName] = useState("");
   const [ingredientsArr, setIngredientsArr] = useState([]);
@@ -327,7 +329,7 @@ export const RecipeForm = () => {
                 {ingredientsArr.map((ingredient, index) => (
                   <Grid item key={index}>
                     <Button
-                      tabIndex={"-1"}
+                      tabIndex="-1"
                       style={{
                         textTransform: "none",
                         color: "inherit",
@@ -339,12 +341,14 @@ export const RecipeForm = () => {
                     >
                       {ingredient.amount} {ingredient.unit} {ingredient.name}{" "}
                       <IconButton
+                        tabIndex="-1"
                         sx={{
                           width: "1.5rem",
                           height: "1.5rem",
                         }}
                       >
                         <ClearIcon
+                          tabIndex="-1"
                           sx={{
                             width: "1rem",
                             height: "1rem",
@@ -402,7 +406,8 @@ export const RecipeForm = () => {
               >
                 {instructionsArr.map((instruction, index) => (
                   <TextField
-                    tabIndex={"-1"}
+                    inputProps={{ tabIndex: "-1" }}
+                    tabIndex="-1"
                     value={instruction}
                     key={index}
                     sx={{
@@ -436,12 +441,14 @@ export const RecipeForm = () => {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
+                            tabIndex="-1"
                             sx={{
                               width: "1.5rem",
                               height: "1.5rem",
                             }}
                           >
                             <ClearIcon
+                              tabIndex="-1"
                               sx={{
                                 width: "1rem",
                                 height: "1rem",
@@ -475,8 +482,11 @@ export const RecipeForm = () => {
             />
             <Button
               component="label"
-              variant="contained"
+              variant="outlined"
               sx={{
+                borderColor: recipeImage
+                  ? theme.palette.error.main
+                  : theme.palette.divider,
                 padding: "1rem",
               }}
               color={recipeImage ? "error" : "inherit"}

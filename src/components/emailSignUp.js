@@ -19,11 +19,13 @@ import {
   IconButton,
   Divider,
 } from "@mui/material";
-import { GoogleSignIn } from "./googleSignIn";
+import { SocialAuth } from "./socialAuth";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { lightBlue } from "@mui/material/colors";
+import { useTheme } from "@emotion/react";
 
 export const EmailSignUp = () => {
+  const theme = useTheme();
   const { loginType } = useParams();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -41,7 +43,7 @@ export const EmailSignUp = () => {
     } else {
       setIsSignup(false);
     }
-  }, [loginType, isSignup]);
+  }, [loginType]);
 
   const signIn = async (e) => {
     e.preventDefault();
@@ -91,7 +93,7 @@ export const EmailSignUp = () => {
           gap: 1,
           padding: 3,
           border: 1,
-          borderColor: "rgba(255, 255, 255, .3)",
+          borderColor: theme.palette.divider,
           borderRadius: 1,
         }}
       >
@@ -103,7 +105,7 @@ export const EmailSignUp = () => {
             background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            padding: 2,
+            paddingBottom: 2,
           }}
         >
           CookShare
@@ -117,7 +119,7 @@ export const EmailSignUp = () => {
             justifyContent: "center",
             display: "flex",
             flexDirection: "column",
-            gap: 2,
+            gap: 1,
           }}
         >
           <TextField
@@ -228,29 +230,59 @@ export const EmailSignUp = () => {
             }}
           />
         </Box>
-        <GoogleSignIn />
+        <SocialAuth providor="Github" loginType={loginType} />
+        <SocialAuth providor="Google" loginType={loginType} />
         <Grid
-          item
           fullWidth
           sx={{
-            padding: "10px",
             alignSelf: "center",
+            justifyContent: "center",
+            textAlign: "center",
           }}
         >
-          {isSignup ? "Have an account? " : "Don't have an account? "}
-          <Link
-            style={{
-              textDecoration: "none",
-              color: lightBlue[500],
-              cursor: "pointer",
+          {isSignup ? (
+            <Typography
+              variant="body2"
+              color={"textSecondary"}
+              sx={{
+                padding: 2,
+              }}
+            >
+              By signing up for an account you agree to CookShare's{" "}
+              <Link
+                style={{
+                  textDecoration: "none",
+                  color: lightBlue[500],
+                  cursor: "pointer",
+                }}
+              >
+                terms of service.
+              </Link>
+            </Typography>
+          ) : null}
+          <Typography
+            variant="body1"
+            color={"textSecondary"}
+            sx={{
+              padding: 1,
             }}
-            onClick={() => {
-              setError(null);
-            }}
-            to={isSignup ? "/auth/login" : "/auth/signup"}
           >
-            {isSignup ? "Log In" : "Sign Up"}
-          </Link>
+            {isSignup ? "Have an account? " : "Don't have an account? "}
+
+            <Link
+              style={{
+                textDecoration: "none",
+                color: lightBlue[500],
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                setError(null);
+              }}
+              to={isSignup ? "/auth/login" : "/auth/signup"}
+            >
+              {isSignup ? "Log In" : "Sign Up"}
+            </Link>
+          </Typography>
         </Grid>
       </Box>
     </>
