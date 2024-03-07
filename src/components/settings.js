@@ -144,17 +144,13 @@ export const Settings = () => {
             Verify Email
           </Button>
 
-          <Button variant="outlined" onClick={deleteUser}>
-            Delete Account
-          </Button>
-
           <DarkModeToggle />
           <Box display={"flex"} flexDirection={"row"} gap={1}>
             <TextField
               type="text"
               fullWidth
               placeholder={currentUser.displayName || "Display Name"}
-              label="New Username"
+              label="Change Username"
               onChange={(e) => setDisplayName(e.target.value)}
               value={displayName}
               onKeyDown={(e) => {
@@ -166,35 +162,41 @@ export const Settings = () => {
             <Button
               sx={{
                 whiteSpace: "nowrap",
-                width: "60%",
               }}
               variant="outlined"
               onClick={addDisplayName}
             >
-              Update Username
+              Update
             </Button>
           </Box>
           <Box display={"flex"} flexDirection={"row"} gap={1}>
             <TextField
               type="text"
-              label="New Email"
-              placeholder="New Email"
+              label="Change Email"
+              placeholder={currentUser.email || "Email"}
               fullWidth
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleChangeEmail(e);
+                }
+              }}
             ></TextField>
             <Button
               onClick={handleChangeEmail}
               sx={{
-                width: "40%",
                 whiteSpace: "nowrap",
               }}
               variant="outlined"
             >
-              Update Email
+              Update
             </Button>
           </Box>
           <Button variant="outlined" onClick={signOutUser}>
-            Logout
+            Log Out
+          </Button>
+          <Button variant="outlined" color="error" onClick={deleteUser}>
+            Delete Account
           </Button>
         </Box>
       </Container>

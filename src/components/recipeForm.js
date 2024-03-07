@@ -213,7 +213,6 @@ export const RecipeForm = () => {
             >
               <TextField
                 required
-                autoFocus
                 type="text"
                 placeholder="ex. Spaghetti Carbonara"
                 value={recipeName}

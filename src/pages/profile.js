@@ -336,6 +336,7 @@ export const ProfilePage = () => {
           }}
         >
           {userRecipes.length === 0 && "No recipes yet"}
+
           {userRecipes.map((recipe) => (
             <Grid item key={recipe.id}>
               {<RecipeCard {...recipe} />}
